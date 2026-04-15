@@ -353,6 +353,13 @@
 </head>
 <body>
 
+<script>
+    (function(){
+        const t = localStorage.getItem('voltwise-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', t);
+    })();
+</script>
+
 <div class="app-shell">
 
     {{-- ===== SIDEBAR ===== --}}
