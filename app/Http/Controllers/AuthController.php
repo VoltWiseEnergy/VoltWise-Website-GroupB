@@ -10,11 +10,11 @@ use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
-    #Show Login Page
-     public function showLogin()
+    public function showLogin()
     {
         if (Auth::check()) {
-            return redirect('/dashboard');
+            // 👇 Already logged in? Send to correct dashboard based on role
+            return redirect(Auth::user()->isAdmin() ? '/admin/dashboard' : '/dashboard');
         }
         return view('auth.login');
     }
