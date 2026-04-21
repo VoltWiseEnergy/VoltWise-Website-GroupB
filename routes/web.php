@@ -26,4 +26,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+
+    Route::middleware('auth')->group(function () {
+        Route::get('/dashboard', function () {
+            return view('dashboard');
+        })->name('dashboard');
+    
+        Route::get('/profile', function () {
+            return view('profile');
+        })->name('profile');
+    });
 });

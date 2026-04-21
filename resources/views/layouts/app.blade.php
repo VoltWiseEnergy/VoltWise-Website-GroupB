@@ -438,8 +438,31 @@
                 </svg>
             </button>
             <div class="topbar-divider"></div>
-            <div class="topbar-avatar" title="{{ auth()->user()->name ?? '' }}">
-                {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
+            <div style="position:relative;">
+    <div class="topbar-avatar" id="avatar-btn">
+        {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
+    </div>
+
+    <div id="avatar-menu" style="
+        position:absolute;
+        top:50px;
+        right:0;
+        background:white;
+        border:1px solid #ddd;
+        border-radius:8px;
+        padding:10px;
+        display:none;
+        z-index:999;
+    ">
+        <a href="{{ route('profile') }}">Profile</a>
+
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit">Logout</button>
+        </form>
+    </div>
+</div>
+                
             </div>
         </header>
 
@@ -460,6 +483,21 @@
 </div>
 
 <script>
+    const avatarBtn = document.getElementById('avatar-btn');
+    const menu = document.getElementById('avatar-menu');
+
+    avatarBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!avatarBtn.contains(e.target) && !menu.contains(e.target)) {
+            menu.style.display = 'none';
+        }
+    });
+    
+
     // Dark mode toggle
     document.getElementById('theme-toggle').addEventListener('click', function () {
         const html = document.documentElement;
@@ -468,7 +506,33 @@
         localStorage.setItem('voltwise-theme', next);
     });
 
+
     @yield('scripts')
 </script>
+<script>
+    const avatarBtn = document.getElementById('avatar-btn');
+    const menu = document.getElementById('avatar-menu');
+
+    avatarBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!avatarBtn.contains(e.target) && !menu.contains(e.target)) {
+            menu.style.display = 'none';
+        }
+    });
+
+    // Dark mode toggle
+    document.getElementById('theme-toggle').addEventListener('click', function () {
+        const html = document.documentElement;
+        const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('voltwise-theme', next);
+    });
+</script>
+
+@yield('scripts')
 </body>
 </html>
