@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DeviceController;
 
 // Main Page
 Route::get('/', function () {
@@ -26,4 +27,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+
+    Route::get('/devices/create', [DeviceController::class, 'create'])->name('devices.create');
+    Route::post('/devices', [DeviceController::class, 'store'])->name('devices.store');
 });

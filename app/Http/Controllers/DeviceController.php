@@ -1,0 +1,57 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Device;
+use Illuminate\Http\Request;
+
+class DeviceController extends Controller
+{
+    public function index()
+    {
+        //
+    }
+
+    public function create()
+    {
+        return view('devices.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|max:255',
+            'wattage' => 'required|integer|min:1',
+            'category' => 'required|max:255'
+        ]);
+
+        Device::create([
+            'user_id' => auth()->id(),
+            'name' => $request->name,
+            'wattage' => $request->wattage,
+            'category' => $request->category
+        ]);
+
+        return redirect()->back()->with('success', 'Device added successfully.');
+    }
+
+    public function show(Device $device)
+    {
+        //
+    }
+
+    public function edit(Device $device)
+    {
+        //
+    }
+
+    public function update(Request $request, Device $device)
+    {
+        //
+    }
+
+    public function destroy(Device $device)
+    {
+        //
+    }
+}
