@@ -24,6 +24,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Protected Routes
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        $hasDevices = false;
+        return view('dashboard', compact('hasDevices'));
     })->name('dashboard');
 });
+

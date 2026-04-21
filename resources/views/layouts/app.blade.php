@@ -438,6 +438,9 @@
                 </svg>
             </button>
             <div class="topbar-divider"></div>
+            <span style="font-size:0.8125rem;font-weight:500;color:var(--text-secondary);transition:color 0.25s;">
+                {{ auth()->user()->name ?? '' }}
+            </span>
             <div class="topbar-avatar" title="{{ auth()->user()->name ?? '' }}">
                 {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
             </div>
