@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BudgetController;
 
 // Main Page
 Route::get('/', function () {
@@ -26,4 +27,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+
+    // Budget routes
+    Route::post('/budget/update', [BudgetController::class, 'update'])->name('budget.update');
+    Route::post('/budget/clear',  [BudgetController::class, 'clear'])->name('budget.clear');
 });
