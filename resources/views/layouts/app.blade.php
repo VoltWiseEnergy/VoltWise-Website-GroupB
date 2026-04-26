@@ -12,7 +12,7 @@
 
     <style>
         /* =============================================
-        #RESET & THEME VARIABLES
+           #RESET & THEME VARIABLES
         ============================================= */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -62,6 +62,10 @@
             --logout-hover-bg:    #fef2f2;
             --logout-hover-color: #ef4444;
             --flash-bg: #f0fdf4; --flash-border: #bbf7d0; --flash-color: #166534;
+
+            --avatar-menu-bg: #ffffff;
+            --avatar-menu-border: #e2e8f0;
+            --avatar-menu-color: #0f172a;
         }
 
         [data-theme="dark"] {
@@ -110,6 +114,10 @@
             --logout-hover-bg:    rgba(239,68,68,0.1);
             --logout-hover-color: #f87171;
             --flash-bg: rgba(16,185,129,0.1); --flash-border: rgba(16,185,129,0.2); --flash-color: #6ee7b7;
+
+            --avatar-menu-bg: #1a2235;
+            --avatar-menu-border: rgba(255,255,255,0.07);
+            --avatar-menu-color: #f1f5f9;
         }
 
         /* =============================================
@@ -211,6 +219,38 @@
             font-size:0.8125rem; font-weight:700; color:var(--blue-600); cursor:pointer;
             transition:border-color 0.25s, background 0.25s;
         }
+
+        /* Avatar dropdown menu */
+        .avatar-menu {
+            position:absolute;
+            top:calc(100% + 10px);
+            right:0;
+            background:var(--avatar-menu-bg);
+            border:1px solid var(--avatar-menu-border);
+            border-radius:10px;
+            padding:0.5rem;
+            display:none;
+            z-index:999;
+            min-width:150px;
+            box-shadow:0 4px 20px rgba(0,0,0,0.12);
+            transition:background 0.25s, border-color 0.25s;
+        }
+        .avatar-menu.open { display:block; }
+        .avatar-menu a,
+        .avatar-menu button {
+            display:flex; align-items:center; gap:0.5rem;
+            width:100%; padding:0.5rem 0.75rem;
+            border-radius:6px; text-decoration:none;
+            font-size:0.8125rem; font-weight:500;
+            color:var(--avatar-menu-color);
+            background:none; border:none; cursor:pointer;
+            font-family:'Inter',sans-serif;
+            transition:background 0.15s, color 0.15s;
+            text-align:left;
+        }
+        .avatar-menu a:hover { background:var(--nav-hover-bg); }
+        .avatar-menu button:hover { background:var(--logout-hover-bg); color:var(--logout-hover-color); }
+        .avatar-menu-divider { height:1px; background:var(--border); margin:0.25rem 0; }
 
         /* PAGE CONTENT */
         .page-content { padding:1.75rem; flex:1; }
@@ -353,6 +393,7 @@
 </head>
 <body>
 
+{{-- Apply saved theme before paint to avoid flash --}}
 <script>
     (function(){
         const t = localStorage.getItem('voltwise-theme') || 'light';
@@ -429,40 +470,42 @@
                 </svg>
                 <svg class="theme-icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="5"/>
-                    <line x1="12" y1="1"  x2="12" y2="3"/>  <line x1="12" y1="21" x2="12" y2="23"/>
+                    <line x1="12" y1="1"  x2="12" y2="3"/>
+                    <line x1="12" y1="21" x2="12" y2="23"/>
                     <line x1="4.22" y1="4.22"   x2="5.64" y2="5.64"/>
                     <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                    <line x1="1" y1="12"  x2="3" y2="12"/>   <line x1="21" y1="12" x2="23" y2="12"/>
+                    <line x1="1" y1="12"  x2="3" y2="12"/>
+                    <line x1="21" y1="12" x2="23" y2="12"/>
                     <line x1="4.22" y1="19.78"  x2="5.64" y2="18.36"/>
                     <line x1="18.36" y1="5.64"  x2="19.78" y2="4.22"/>
                 </svg>
             </button>
             <div class="topbar-divider"></div>
             <div style="position:relative;">
-    <div class="topbar-avatar" id="avatar-btn">
-        {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
-    </div>
-
-    <div id="avatar-menu" style="
-        position:absolute;
-        top:50px;
-        right:0;
-        background:white;
-        border:1px solid #ddd;
-        border-radius:8px;
-        padding:10px;
-        display:none;
-        z-index:999;
-    ">
-        <a href="{{ route('profile') }}">Profile</a>
-
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit">Logout</button>
-        </form>
-    </div>
-</div>
-                
+                <div class="topbar-avatar" id="avatar-btn" title="{{ auth()->user()->name ?? 'User' }}">
+                    {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
+                </div>
+                <div id="avatar-menu" class="avatar-menu">
+                    <a href="{{ route('profile') }}">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        Profile
+                    </a>
+                    <div class="avatar-menu-divider"></div>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                                <polyline points="16 17 21 12 16 7"/>
+                                <line x1="21" y1="12" x2="9" y2="12"/>
+                            </svg>
+                            Sign Out
+                        </button>
+                    </form>
+                </div>
             </div>
         </header>
 
@@ -471,7 +514,8 @@
             @if (session('success'))
                 <div class="flash" role="status">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
                     </svg>
                     {{ session('success') }}
                 </div>
@@ -479,53 +523,28 @@
 
             @yield('content')
         </main>
-    </div>
-</div>
+
+    </div>{{-- /.main-area --}}
+</div>{{-- /.app-shell --}}
 
 <script>
+    // Avatar dropdown
     const avatarBtn = document.getElementById('avatar-btn');
-    const menu = document.getElementById('avatar-menu');
+    const avatarMenu = document.getElementById('avatar-menu');
 
-    avatarBtn.addEventListener('click', function (e) {
+    avatarBtn.addEventListener('click', function(e) {
         e.stopPropagation();
-        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        avatarMenu.classList.toggle('open');
     });
 
-    document.addEventListener('click', function (e) {
-        if (!avatarBtn.contains(e.target) && !menu.contains(e.target)) {
-            menu.style.display = 'none';
-        }
-    });
-    
-
-    // Dark mode toggle
-    document.getElementById('theme-toggle').addEventListener('click', function () {
-        const html = document.documentElement;
-        const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        html.setAttribute('data-theme', next);
-        localStorage.setItem('voltwise-theme', next);
-    });
-
-
-    @yield('scripts')
-</script>
-<script>
-    const avatarBtn = document.getElementById('avatar-btn');
-    const menu = document.getElementById('avatar-menu');
-
-    avatarBtn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-    });
-
-    document.addEventListener('click', function (e) {
-        if (!avatarBtn.contains(e.target) && !menu.contains(e.target)) {
-            menu.style.display = 'none';
+    document.addEventListener('click', function(e) {
+        if (!avatarBtn.contains(e.target) && !avatarMenu.contains(e.target)) {
+            avatarMenu.classList.remove('open');
         }
     });
 
     // Dark mode toggle
-    document.getElementById('theme-toggle').addEventListener('click', function () {
+    document.getElementById('theme-toggle').addEventListener('click', function() {
         const html = document.documentElement;
         const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         html.setAttribute('data-theme', next);
@@ -534,5 +553,6 @@
 </script>
 
 @yield('scripts')
+
 </body>
 </html>

@@ -29,6 +29,14 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    // app/Models/User.php
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'phone',    
+        'avatar',   
+    ];
 
         public function isAdmin(): bool
     {

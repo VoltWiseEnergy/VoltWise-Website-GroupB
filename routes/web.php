@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 
 // Main Page
 Route::get('/', function () {
@@ -32,8 +33,8 @@ Route::middleware('auth')->group(function () {
             return view('dashboard');
         })->name('dashboard');
     
-        Route::get('/profile', function () {
-            return view('profile');
-        })->name('profile');
+        Route::middleware('auth')->group(function () {
+            Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+        });
     });
 });
