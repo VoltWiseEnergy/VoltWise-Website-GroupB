@@ -12,7 +12,7 @@
 
     <style>
         /* =============================================
-        #RESET & THEME VARIABLES
+           #RESET & THEME VARIABLES
         ============================================= */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -21,7 +21,7 @@
             --bg-sidebar:       #ffffff;
             --bg-topbar:        #ffffff;
             --bg-card:          #ffffff;
-            --bg-tip:           #f8fafc;
+            --bg-tip:            #f8fafc;
             --bg-feature:       #ffffff;
             --bg-banner:        linear-gradient(135deg,#eef3ff 0%,#e8f0fe 50%,#f0f7ff 100%);
             --bg-banner-border: #bfdbfe;
@@ -62,6 +62,25 @@
             --logout-hover-bg:    #fef2f2;
             --logout-hover-color: #ef4444;
             --flash-bg: #f0fdf4; --flash-border: #bbf7d0; --flash-color: #166534;
+
+            /* Avatar & Profile */
+            --avatar-menu-bg: #ffffff;
+            --avatar-menu-border: #e2e8f0;
+            --avatar-menu-color: #0f172a;
+
+            /* Budget Tracker */
+            --budget-track-bg:      #e2e8f0;
+            --budget-bar-safe:      #10b981;
+            --budget-bar-warn:      #f59e0b;
+            --budget-bar-danger:    #ef4444;
+            --budget-label-safe:    #065f46;
+            --budget-label-warn:    #78350f;
+            --budget-label-danger:  #7f1d1d;
+            --budget-badge-safe-bg: #d1fae5;
+            --budget-badge-warn-bg: #fef3c7;
+            --budget-badge-danger-bg: #fee2e2;
+            --modal-overlay:        rgba(15,23,42,0.45);
+            --modal-bg:              #ffffff;
         }
 
         [data-theme="dark"] {
@@ -69,7 +88,7 @@
             --bg-sidebar:       #111827;
             --bg-topbar:        #111827;
             --bg-card:          #1a2235;
-            --bg-tip:           #1e2840;
+            --bg-tip:            #1e2840;
             --bg-feature:       #1e2840;
             --bg-banner:        linear-gradient(135deg,#0f1d3a 0%,#0e1a36 60%,#0f1f3d 100%);
             --bg-banner-border: #1e3a5f;
@@ -110,6 +129,25 @@
             --logout-hover-bg:    rgba(239,68,68,0.1);
             --logout-hover-color: #f87171;
             --flash-bg: rgba(16,185,129,0.1); --flash-border: rgba(16,185,129,0.2); --flash-color: #6ee7b7;
+
+            /* Avatar & Profile */
+            --avatar-menu-bg: #1a2235;
+            --avatar-menu-border: rgba(255,255,255,0.07);
+            --avatar-menu-color: #f1f5f9;
+
+            /* Budget Tracker */
+            --budget-track-bg:      rgba(255,255,255,0.08);
+            --budget-bar-safe:      #10b981;
+            --budget-bar-warn:      #f59e0b;
+            --budget-bar-danger:    #ef4444;
+            --budget-label-safe:    #6ee7b7;
+            --budget-label-warn:    #fde047;
+            --budget-label-danger:  #fca5a5;
+            --budget-badge-safe-bg: rgba(16,185,129,0.15);
+            --budget-badge-warn-bg: rgba(245,158,11,0.15);
+            --budget-badge-danger-bg: rgba(239,68,68,0.15);
+            --modal-overlay:        rgba(0,0,0,0.65);
+            --modal-bg:              #1a2235;
         }
 
         /* =============================================
@@ -211,6 +249,38 @@
             font-size:0.8125rem; font-weight:700; color:var(--blue-600); cursor:pointer;
             transition:border-color 0.25s, background 0.25s;
         }
+
+        /* Avatar dropdown menu */
+        .avatar-menu {
+            position:absolute;
+            top:calc(100% + 10px);
+            right:0;
+            background:var(--avatar-menu-bg);
+            border:1px solid var(--avatar-menu-border);
+            border-radius:10px;
+            padding:0.5rem;
+            display:none;
+            z-index:999;
+            min-width:150px;
+            box-shadow:0 4px 20px rgba(0,0,0,0.12);
+            transition:background 0.25s, border-color 0.25s;
+        }
+        .avatar-menu.open { display:block; }
+        .avatar-menu a,
+        .avatar-menu button {
+            display:flex; align-items:center; gap:0.5rem;
+            width:100%; padding:0.5rem 0.75rem;
+            border-radius:6px; text-decoration:none;
+            font-size:0.8125rem; font-weight:500;
+            color:var(--avatar-menu-color);
+            background:none; border:none; cursor:pointer;
+            font-family:'Inter',sans-serif;
+            transition:background 0.15s, color 0.15s;
+            text-align:left;
+        }
+        .avatar-menu a:hover { background:var(--nav-hover-bg); }
+        .avatar-menu button:hover { background:var(--logout-hover-bg); color:var(--logout-hover-color); }
+        .avatar-menu-divider { height:1px; background:var(--border); margin:0.25rem 0; }
 
         /* PAGE CONTENT */
         .page-content { padding:1.75rem; flex:1; }
@@ -332,6 +402,155 @@
         .btn-primary svg { width:14px; height:14px; }
 
         /* =============================================
+           BUDGET TRACKER CARD
+        ============================================= */
+        .budget-card { margin-bottom: 1.5rem; }
+        .budget-card-inner { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1.25rem; }
+
+        .budget-left { flex:1; min-width:0; }
+        .budget-amounts {
+            display:flex; align-items:baseline; gap:0.375rem;
+            margin-bottom:0.625rem;
+        }
+        .budget-used {
+            font-size:1.75rem; font-weight:700; letter-spacing:-0.03em;
+            color:var(--text-primary); transition:color 0.25s;
+        }
+        .budget-sep { font-size:1rem; color:var(--text-faint); }
+        .budget-total { font-size:1rem; font-weight:500; color:var(--text-muted); }
+        .budget-no-set { font-size:0.8125rem; color:var(--text-faint); font-style:italic; margin-bottom:0.625rem; }
+
+        /* Progress bar track */
+        .budget-track {
+            width:100%; height:10px; background:var(--budget-track-bg);
+            border-radius:99px; overflow:hidden; margin-bottom:0.5rem;
+        }
+        .budget-fill {
+            height:100%; border-radius:99px;
+            background:var(--budget-bar-safe);
+            transition:width 0.8s cubic-bezier(.4,0,.2,1), background 0.4s;
+            will-change:width;
+        }
+        .budget-fill.warn   { background:var(--budget-bar-warn); }
+        .budget-fill.danger { background:var(--budget-bar-danger); }
+
+        .budget-meta { display:flex; align-items:center; gap:0.5rem; }
+        .budget-pct-badge {
+            display:inline-flex; align-items:center;
+            padding:0.2rem 0.55rem; border-radius:99px;
+            font-size:0.75rem; font-weight:700;
+            background:var(--budget-badge-safe-bg);
+            color:var(--budget-label-safe);
+            transition:background 0.3s,color 0.3s;
+        }
+        .budget-pct-badge.warn   { background:var(--budget-badge-warn-bg);   color:var(--budget-label-warn); }
+        .budget-pct-badge.danger { background:var(--budget-badge-danger-bg); color:var(--budget-label-danger); }
+        .budget-pct-label { font-size:0.75rem; color:var(--text-faint); }
+
+        .budget-right { display:flex; flex-direction:column; align-items:flex-end; gap:0.5rem; flex-shrink:0; }
+        .budget-actions { display:flex; gap:0.5rem; align-items:center; }
+        .btn-budget-set {
+            display:inline-flex; align-items:center; gap:0.375rem;
+            padding:0.45rem 0.875rem; border-radius:8px;
+            font-size:0.8125rem; font-weight:600; font-family:'Inter',sans-serif;
+            background:var(--blue-600); color:#fff; border:none; cursor:pointer;
+            transition:background 0.15s,transform 0.15s,box-shadow 0.15s;
+            box-shadow:0 2px 8px rgba(74,124,246,0.3);
+        }
+        .btn-budget-set:hover { background:var(--blue-700); transform:translateY(-1px); box-shadow:0 4px 12px rgba(74,124,246,0.4); }
+        .btn-budget-set svg { width:13px; height:13px; }
+        .btn-budget-clear {
+            display:inline-flex; align-items:center; gap:0.3rem;
+            padding:0.45rem 0.75rem; border-radius:8px;
+            font-size:0.8125rem; font-weight:500; font-family:'Inter',sans-serif;
+            background:none; color:var(--text-faint); border:1px solid var(--border);
+            cursor:pointer; transition:border-color 0.15s,color 0.15s,background 0.15s;
+        }
+        .btn-budget-clear:hover { border-color:#ef4444; color:#ef4444; background:rgba(239,68,68,0.05); }
+        .btn-budget-clear svg { width:12px; height:12px; }
+
+        /* =============================================
+           BUDGET MODAL
+        ============================================= */
+        .modal-overlay {
+            position:fixed; inset:0; background:var(--modal-overlay);
+            z-index:1000; display:flex; align-items:center; justify-content:center;
+            opacity:0; pointer-events:none;
+            transition:opacity 0.2s;
+            backdrop-filter:blur(2px);
+        }
+        .modal-overlay.open { opacity:1; pointer-events:auto; }
+        .modal {
+            background:var(--modal-bg); border:1px solid var(--border);
+            border-radius:16px; padding:1.75rem; width:100%; max-width:420px;
+            box-shadow:0 20px 60px rgba(0,0,0,0.2);
+            transform:scale(0.95) translateY(8px);
+            transition:transform 0.25s cubic-bezier(.4,0,.2,1), background 0.25s, border-color 0.25s;
+        }
+        .modal-overlay.open .modal { transform:scale(1) translateY(0); }
+        .modal-header {
+            display:flex; align-items:center; justify-content:space-between;
+            margin-bottom:1.25rem;
+        }
+        .modal-title { font-size:1rem; font-weight:700; color:var(--text-primary); transition:color 0.25s; }
+        .modal-close {
+            width:28px; height:28px; display:flex; align-items:center; justify-content:center;
+            border-radius:50%; background:none; border:none; cursor:pointer;
+            color:var(--text-faint); transition:background 0.15s,color 0.15s;
+        }
+        .modal-close:hover { background:var(--icon-btn-hover); color:var(--text-primary); }
+        .modal-close svg { width:14px; height:14px; }
+        .modal-desc { font-size:0.8125rem; color:var(--text-muted); margin-bottom:1.25rem; line-height:1.5; transition:color 0.25s; }
+        .modal-label {
+            display:block; font-size:0.8125rem; font-weight:600;
+            color:var(--text-secondary); margin-bottom:0.4rem; transition:color 0.25s;
+        }
+        .input-with-prefix {
+            display:flex; align-items:center;
+            border:1.5px solid var(--border); border-radius:9px; overflow:hidden;
+            transition:border-color 0.2s, box-shadow 0.2s;
+        }
+        .input-with-prefix:focus-within {
+            border-color:var(--blue-600);
+            box-shadow:0 0 0 3px rgba(74,124,246,0.15);
+        }
+        .input-prefix {
+            padding:0.65rem 0.75rem;
+            background:var(--bg-tip); color:var(--text-muted);
+            font-size:0.875rem; font-weight:600;
+            border-right:1.5px solid var(--border);
+            white-space:nowrap; transition:background 0.25s, border-color 0.25s, color 0.25s;
+        }
+        .input-budget {
+            flex:1; padding:0.65rem 0.875rem;
+            background:transparent; border:none; outline:none;
+            font-size:0.9375rem; font-weight:600;
+            color:var(--text-primary); font-family:'Inter',sans-serif;
+            transition:color 0.25s;
+        }
+        .input-budget::placeholder { color:var(--text-faint); font-weight:400; }
+        .modal-hint { font-size:0.75rem; color:var(--text-faint); margin-top:0.375rem; transition:color 0.25s; }
+        .modal-actions {
+            display:flex; gap:0.625rem; margin-top:1.5rem;
+        }
+        .btn-modal-cancel {
+            flex:1; padding:0.6rem; border-radius:8px;
+            background:none; border:1.5px solid var(--border);
+            font-size:0.875rem; font-weight:600; font-family:'Inter',sans-serif;
+            color:var(--text-muted); cursor:pointer;
+            transition:border-color 0.15s,color 0.15s,background 0.15s;
+        }
+        .btn-modal-cancel:hover { background:var(--nav-hover-bg); color:var(--text-primary); }
+        .btn-modal-save {
+            flex:2; padding:0.6rem; border-radius:8px;
+            background:var(--blue-600); border:none; color:#fff;
+            font-size:0.875rem; font-weight:700; font-family:'Inter',sans-serif;
+            cursor:pointer; transition:background 0.15s,transform 0.1s,box-shadow 0.15s;
+            box-shadow:0 2px 8px rgba(74,124,246,0.3);
+        }
+        .btn-modal-save:hover { background:var(--blue-700); transform:translateY(-1px); box-shadow:0 4px 14px rgba(74,124,246,0.4); }
+
+        /* =============================================
            RESPONSIVE
         ============================================= */
         @media (max-width: 1100px) {
@@ -353,6 +572,7 @@
 </head>
 <body>
 
+{{-- Apply saved theme before paint to avoid flash --}}
 <script>
     (function(){
         const t = localStorage.getItem('voltwise-theme') || 'light';
@@ -450,17 +670,42 @@
                 </svg>
                 <svg class="theme-icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="5"/>
-                    <line x1="12" y1="1"  x2="12" y2="3"/>  <line x1="12" y1="21" x2="12" y2="23"/>
+                    <line x1="12" y1="1"  x2="12" y2="3"/>
+                    <line x1="12" y1="21" x2="12" y2="23"/>
                     <line x1="4.22" y1="4.22"   x2="5.64" y2="5.64"/>
                     <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                    <line x1="1" y1="12"  x2="3" y2="12"/>   <line x1="21" y1="12" x2="23" y2="12"/>
+                    <line x1="1" y1="12"  x2="3" y2="12"/>
+                    <line x1="21" y1="12" x2="23" y2="12"/>
                     <line x1="4.22" y1="19.78"  x2="5.64" y2="18.36"/>
                     <line x1="18.36" y1="5.64"  x2="19.78" y2="4.22"/>
                 </svg>
             </button>
             <div class="topbar-divider"></div>
-            <div class="topbar-avatar" title="{{ auth()->user()->name ?? '' }}">
-                {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
+            <div style="position:relative;">
+                <div class="topbar-avatar" id="avatar-btn" title="{{ auth()->user()->name ?? 'User' }}">
+                    {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
+                </div>
+                <div id="avatar-menu" class="avatar-menu">
+                    <a href="{{ route('profile') }}">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        Profile
+                    </a>
+                    <div class="avatar-menu-divider"></div>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                                <polyline points="16 17 21 12 16 7"/>
+                                <line x1="21" y1="12" x2="9" y2="12"/>
+                            </svg>
+                            Sign Out
+                        </button>
+                    </form>
+                </div>
             </div>
         </header>
 
@@ -469,7 +714,8 @@
             @if (session('success'))
                 <div class="flash" role="status">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
                     </svg>
                     {{ session('success') }}
                 </div>
@@ -477,19 +723,36 @@
 
             @yield('content')
         </main>
-    </div>
-</div>
+
+    </div>{{-- /.main-area --}}
+</div>{{-- /.app-shell --}}
 
 <script>
+    // Avatar dropdown
+    const avatarBtn = document.getElementById('avatar-btn');
+    const avatarMenu = document.getElementById('avatar-menu');
+
+    avatarBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        avatarMenu.classList.toggle('open');
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!avatarBtn.contains(e.target) && !avatarMenu.contains(e.target)) {
+            avatarMenu.classList.remove('open');
+        }
+    });
+
     // Dark mode toggle
-    document.getElementById('theme-toggle').addEventListener('click', function () {
+    document.getElementById('theme-toggle').addEventListener('click', function() {
         const html = document.documentElement;
         const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         html.setAttribute('data-theme', next);
         localStorage.setItem('voltwise-theme', next);
     });
-
-    @yield('scripts')
 </script>
+
+@yield('scripts')
+
 </body>
 </html>
