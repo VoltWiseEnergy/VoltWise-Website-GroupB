@@ -584,7 +584,7 @@
 
     {{-- ===== SIDEBAR ===== --}}
     <aside class="sidebar">
-        <a href="{{ url('/dashboard') }}" class="sidebar-brand">
+        <a href="{{ auth()->user()->isAdmin() ? route('admin.dashboard') : url('/dashboard') }}" class="sidebar-brand">
             <div class="brand-bolt">
                 <svg viewBox="0 0 24 24"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
             </div>
@@ -592,36 +592,56 @@
         </a>
 
         <nav class="sidebar-nav" aria-label="Main">
-            <a href="{{ url('/dashboard') }}"
-               class="nav-item {{ request()->is('dashboard') ? 'active' : '' }}">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-                    <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
-                </svg>
-                Dashboard
-            </a>
-            <a href="#" class="nav-item {{ request()->is('devices*') ? 'active' : '' }}">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                </svg>
-                My Devices
-            </a>
-            <a href="#" class="nav-item {{ request()->is('tracker*') ? 'active' : '' }}">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                    <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
-                    <line x1="3" y1="10" x2="21" y2="10"/>
-                </svg>
-                Daily Tracker
-            </a>
-            <a href="#" class="nav-item {{ request()->is('analytics*') ? 'active' : '' }}">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="20" x2="18" y2="10"/>
-                    <line x1="12" y1="20" x2="12" y2="4"/>
-                    <line x1="6"  y1="20" x2="6"  y2="14"/>
-                </svg>
-                Analytics
-            </a>
+            @if(auth()->user()->isAdmin())
+                {{-- ========== ADMIN SIDEBAR ========== --}}
+                <a href="{{ route('admin.dashboard') }}"
+                   class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                    Dashboard
+                </a>
+                <a href="{{ route('admin.master-devices.index') }}"
+                   class="nav-item {{ request()->routeIs('admin.master-devices.*') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3"/>
+                    </svg>
+                    Master Devices
+                </a>
+            @else
+                {{-- ========== USER SIDEBAR (unchanged) ========== --}}
+                <a href="{{ url('/dashboard') }}"
+                   class="nav-item {{ request()->is('dashboard') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                    Dashboard
+                </a>
+                <a href="#" class="nav-item {{ request()->is('devices*') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                    </svg>
+                    My Devices
+                </a>
+                <a href="#" class="nav-item {{ request()->is('tracker*') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    Daily Tracker
+                </a>
+                <a href="#" class="nav-item {{ request()->is('analytics*') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"/>
+                        <line x1="12" y1="20" x2="12" y2="4"/>
+                        <line x1="6"  y1="20" x2="6"  y2="14"/>
+                    </svg>
+                    Analytics
+                </a>
+            @endif
         </nav>
 
         <div class="sidebar-footer">
@@ -637,6 +657,7 @@
             </form>
         </div>
     </aside>
+
 
     {{-- ===== MAIN ===== --}}
     <div class="main-area">
