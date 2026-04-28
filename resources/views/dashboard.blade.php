@@ -384,53 +384,55 @@
 @endsection
 
 @section('scripts')
-    // ---- Budget Modal ----
-    const overlay     = document.getElementById('budget-modal-overlay');
-    const openBtn     = document.getElementById('open-budget-modal');
-    const closeBtn    = document.getElementById('close-budget-modal');
-    const cancelBtn   = document.getElementById('cancel-budget-modal');
-    const budgetInput = document.getElementById('monthly_budget');
+    <script>
+        // ---- Budget Modal ----
+        const overlay     = document.getElementById('budget-modal-overlay');
+        const openBtn     = document.getElementById('open-budget-modal');
+        const closeBtn    = document.getElementById('close-budget-modal');
+        const cancelBtn   = document.getElementById('cancel-budget-modal');
+        const budgetInput = document.getElementById('monthly_budget');
 
-    function openModal() {
-        overlay.classList.add('open');
-        setTimeout(() => budgetInput && budgetInput.focus(), 150);
-        document.body.style.overflow = 'hidden';
-    }
-    function closeModal() {
-        overlay.classList.remove('open');
-        document.body.style.overflow = '';
-    }
+        function openModal() {
+            overlay.classList.add('open');
+            setTimeout(() => budgetInput && budgetInput.focus(), 150);
+            document.body.style.overflow = 'hidden';
+        }
+        function closeModal() {
+            overlay.classList.remove('open');
+            document.body.style.overflow = '';
+        }
 
-    openBtn   && openBtn.addEventListener('click', openModal);
-    closeBtn  && closeBtn.addEventListener('click', closeModal);
-    cancelBtn && cancelBtn.addEventListener('click', closeModal);
+        openBtn   && openBtn.addEventListener('click', openModal);
+        closeBtn  && closeBtn.addEventListener('click', closeModal);
+        cancelBtn && cancelBtn.addEventListener('click', closeModal);
 
-    // Close on overlay click (outside modal box)
-    overlay && overlay.addEventListener('click', function(e) {
-        if (e.target === overlay) closeModal();
-    });
+        // Close on overlay click (outside modal box)
+        overlay && overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) closeModal();
+        });
 
-    // Close on Escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && overlay.classList.contains('open')) closeModal();
-    });
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && overlay.classList.contains('open')) closeModal();
+        });
 
-    // Auto-open modal if there's a validation error on the budget field
-    @error('monthly_budget')
-        openModal();
-    @enderror
+        // Auto-open modal if there's a validation error on the budget field
+        @error('monthly_budget')
+            openModal();
+        @enderror
 
-    // Animate the progress bar on load
-    window.addEventListener('load', function () {
-        const fill  = document.getElementById('budget-fill-bar');
-        const badge = document.getElementById('budget-pct-badge');
-        if (!fill) return;
-        const target = parseFloat(fill.style.width) || 0;
-        fill.style.width = '0%';
-        requestAnimationFrame(() => {
+        // Animate the progress bar on load
+        window.addEventListener('load', function () {
+            const fill  = document.getElementById('budget-fill-bar');
+            const badge = document.getElementById('budget-pct-badge');
+            if (!fill) return;
+            const target = parseFloat(fill.style.width) || 0;
+            fill.style.width = '0%';
             requestAnimationFrame(() => {
-                fill.style.width = target + '%';
+                requestAnimationFrame(() => {
+                    fill.style.width = target + '%';
+                });
             });
         });
-    });
+    </script>
 @endsection
