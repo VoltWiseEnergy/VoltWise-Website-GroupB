@@ -96,7 +96,7 @@
                         </svg>
                     </div>
                 </div>
-                <div class="stat-value">0</div>
+                <div class="stat-value">{{ $totalDevices }}</div>
                 <div class="stat-detail">Active devices monitored</div>
             </div>
         </div>
@@ -112,7 +112,7 @@
                         </svg>
                     </div>
                 </div>
-                <div class="stat-value">0.00 <small>kWh</small></div>
+                <div class="stat-value">{{ number_format($todayEnergyKwh, 2) }} <small>kWh</small></div>
                 <div class="stat-detail">Energy consumed today</div>
             </div>
         </div>
@@ -144,8 +144,14 @@
                         </svg>
                     </div>
                 </div>
-                <div class="stat-value na">N/A</div>
-                <div class="stat-detail">Highest energy usage</div>
+                <div class="stat-value na">{{ $topConsumer ? $topConsumer->name : 'N/A' }}</div>
+                <div class="stat-detail">
+                    @if($topConsumer)
+                        {{ number_format($topConsumer->daily_energy_kwh, 2) }} kWh/day
+                    @else
+                        Highest energy usage
+                    @endif
+                </div>
             </div>
         </div>
     </div>
@@ -247,14 +253,25 @@
             <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
                 <div class="card-title">Top 5 Energy Consumers</div>
                 <div class="card-subtitle">Today's energy consumption by device</div>
-                <div class="empty-state">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2"/>
-                        <line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/>
-                        <line x1="9" y1="3" x2="9" y2="21"/>
-                    </svg>
-                    <p>No devices added yet. Add some devices to see your consumption.</p>
-                </div>
+                @if($devices->isEmpty())
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/>
+                            <line x1="9" y1="3" x2="9" y2="21"/>
+                        </svg>
+                        <p>No devices added yet. Add some devices to see your consumption.</p>
+                    </div>
+                @else
+                    <div class="list-block" style="margin-top:1rem;">
+                        @foreach($devices->sortByDesc('daily_energy_kwh')->take(5) as $device)
+                            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 0;border-bottom:1px solid var(--border);">
+                                <span>{{ $device->name }}</span>
+                                <span>{{ number_format($device->daily_energy_kwh, 2) }} kWh</span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -262,13 +279,24 @@
             <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
                 <div class="card-title">Energy by Category</div>
                 <div class="card-subtitle">Distribution across device categories</div>
-                <div class="empty-state">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
-                        <path d="M22 12A10 10 0 0 0 12 2v10z"/>
-                    </svg>
-                    <p>No data available</p>
-                </div>
+                @if($energyByCategory->isEmpty())
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
+                            <path d="M22 12A10 10 0 0 0 12 2v10z"/>
+                        </svg>
+                        <p>No data available</p>
+                    </div>
+                @else
+                    <div class="list-block" style="margin-top:1rem;">
+                        @foreach($energyByCategory as $category => $kwh)
+                            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 0;border-bottom:1px solid var(--border);">
+                                <span>{{ $category }}</span>
+                                <span>{{ number_format($kwh, 2) }} kWh</span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
     </div>
