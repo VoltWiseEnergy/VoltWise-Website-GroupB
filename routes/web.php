@@ -28,6 +28,7 @@ Route::middleware('auth')->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
+    Route::get('/devices', [DeviceController::class, 'index'])->name('devices.index');
     Route::get('/devices/create', [DeviceController::class, 'create'])->name('devices.create');
     Route::post('/devices', [DeviceController::class, 'store'])->name('devices.store');
 });

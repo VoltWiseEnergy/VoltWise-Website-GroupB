@@ -9,7 +9,8 @@ class DeviceController extends Controller
 {
     public function index()
     {
-        //
+        $devices = Device::where('user_id', auth()->id())->get();
+        return view('devices.index', compact('devices'));
     }
 
     public function create()
@@ -32,7 +33,7 @@ class DeviceController extends Controller
             'category' => $request->category
         ]);
 
-        return redirect()->back()->with('success', 'Device added successfully.');
+        return redirect()->route('devices.index')->with('success', 'Device added successfully.');
     }
 
     public function show(Device $device)
