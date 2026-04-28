@@ -11,13 +11,19 @@ class MasterDeviceController extends Controller
     /**
      * PBI #2: View all master devices (list page)
      */
-    public function index()
+     public function index()
     {
-        // Get all devices from database, ordered by name
         $masterDevices = MasterDevice::orderBy('name')->get();
-
-        // Show the list page and pass the data
-        return view('admin.master-devices.index', compact('masterDevices'));
+        // Stats for summary cards
+        $totalDevices = $masterDevices->count();
+        $totalCategories = $masterDevices->pluck('category')->unique()->count();
+        $avgWattage = $totalDevices > 0 ? round($masterDevices->avg('wattage')) : 0;
+        return view('admin.master-devices.index', compact(
+            'masterDevices',
+            'totalDevices',
+            'totalCategories',
+            'avgWattage'
+        ));
     }
 
     /**

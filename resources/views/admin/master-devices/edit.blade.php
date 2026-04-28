@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Add Master Device')
+@section('title', 'Edit Master Device')
 
 @section('content')
     <style>
@@ -18,7 +18,7 @@
         }
         .form-card-header-icon {
             width: 40px; height: 40px; border-radius: 10px;
-            background: var(--icon-blue-bg); color: var(--icon-blue-fg);
+            background: var(--icon-orange-bg); color: var(--icon-orange-fg);
             display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
         .form-card-header-icon svg { width: 18px; height: 18px; }
@@ -33,7 +33,6 @@
             color: var(--text-secondary); margin-bottom: 0.375rem;
         }
         .fg label span { color: #ef4444; }
-        .fg .hint { font-size: 0.6875rem; color: var(--text-faint); margin-top: 0.25rem; }
 
         .fi, .fs, .ft {
             width: 100%; padding: 0.625rem 0.875rem;
@@ -42,15 +41,13 @@
             color: var(--text-primary); outline: none;
             transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
         }
-        .fi::placeholder, .ft::placeholder { color: var(--text-faint); }
-        .fi:hover, .fs:hover, .ft:hover { border-color: var(--blue-200); }
         .fi:focus, .fs:focus, .ft:focus {
             border-color: var(--blue-600);
             box-shadow: 0 0 0 3px rgba(74,124,246,0.12);
             background: var(--bg-card);
         }
         .ft { min-height: 80px; resize: vertical; }
-        .fe { font-size: 0.75rem; color: #ef4444; margin-top: 0.375rem; display: flex; align-items: center; gap: 0.25rem; }
+        .fe { font-size: 0.75rem; color: #ef4444; margin-top: 0.375rem; }
 
         .form-card-footer {
             padding: 1rem 1.5rem; border-top: 1px solid var(--border);
@@ -68,25 +65,26 @@
 
     <div class="page-header">
         <div>
-            <h1 class="page-title">Add Master Device</h1>
-            <p class="page-subtitle">Create a new device template for the library</p>
+            <h1 class="page-title">Edit Master Device</h1>
+            <p class="page-subtitle">Update "{{ $masterDevice->name }}"</p>
         </div>
     </div>
 
-    <form method="POST" action="{{ route('admin.master-devices.store') }}">
+    <form method="POST" action="{{ route('admin.master-devices.update', $masterDevice) }}">
         @csrf
+        @method('PUT')
         <div class="form-card">
             <div class="form-card-header">
                 <div class="form-card-header-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                          stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19"/>
-                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                     </svg>
                 </div>
                 <div>
-                    <h2>Device Information</h2>
-                    <p>Fill in the details for the new device template</p>
+                    <h2>Edit Device</h2>
+                    <p>Update the details for "{{ $masterDevice->name }}"</p>
                 </div>
             </div>
 
@@ -94,40 +92,32 @@
                 <div class="fg">
                     <label for="name">Device Name <span>*</span></label>
                     <input type="text" name="name" id="name" class="fi"
-                           value="{{ old('name') }}" required placeholder="e.g. LED Bulb 10W">
-                    <div class="hint">The name users will see when selecting a device</div>
+                           value="{{ old('name', $masterDevice->name) }}" required>
                     @error('name') <div class="fe">⚠ {{ $message }}</div> @enderror
                 </div>
 
                 <div class="fg">
                     <label for="category">Category <span>*</span></label>
                     <select name="category" id="category" class="fs" required>
-                        <option value="">Select a category...</option>
-                        <option value="Lighting" {{ old('category') == 'Lighting' ? 'selected' : '' }}>💡 Lighting</option>
-                        <option value="Cooling" {{ old('category') == 'Cooling' ? 'selected' : '' }}>❄️ Cooling</option>
-                        <option value="Heating" {{ old('category') == 'Heating' ? 'selected' : '' }}>🔥 Heating</option>
-                        <option value="Kitchen" {{ old('category') == 'Kitchen' ? 'selected' : '' }}>🍳 Kitchen</option>
-                        <option value="Entertainment" {{ old('category') == 'Entertainment' ? 'selected' : '' }}>📺 Entertainment</option>
-                        <option value="Laundry" {{ old('category') == 'Laundry' ? 'selected' : '' }}>👕 Laundry</option>
-                        <option value="Office" {{ old('category') == 'Office' ? 'selected' : '' }}>💻 Office</option>
-                        <option value="Other" {{ old('category') == 'Other' ? 'selected' : '' }}>📦 Other</option>
+                        @foreach(['Lighting','Cooling','Heating','Kitchen','Entertainment','Laundry','Office','Other'] as $cat)
+                            <option value="{{ $cat }}" {{ old('category', $masterDevice->category) == $cat ? 'selected' : '' }}>
+                                {{ $cat }}
+                            </option>
+                        @endforeach
                     </select>
                     @error('category') <div class="fe">⚠ {{ $message }}</div> @enderror
                 </div>
 
                 <div class="fg">
-                    <label for="wattage">Wattage <span>*</span></label>
+                    <label for="wattage">Wattage (W) <span>*</span></label>
                     <input type="number" name="wattage" id="wattage" class="fi"
-                           value="{{ old('wattage') }}" required min="0" step="0.01"
-                           placeholder="e.g. 100">
-                    <div class="hint">Power consumption in watts (W)</div>
+                           value="{{ old('wattage', $masterDevice->wattage) }}" required min="0" step="0.01">
                     @error('wattage') <div class="fe">⚠ {{ $message }}</div> @enderror
                 </div>
 
                 <div class="fg">
                     <label for="description">Description</label>
-                    <textarea name="description" id="description" class="ft"
-                              placeholder="Optional — describe what this device is or how it's used...">{{ old('description') }}</textarea>
+                    <textarea name="description" id="description" class="ft">{{ old('description', $masterDevice->description) }}</textarea>
                     @error('description') <div class="fe">⚠ {{ $message }}</div> @enderror
                 </div>
             </div>
@@ -137,10 +127,11 @@
                 <button type="submit" class="btn-primary">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                          stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
-                        <line x1="12" y1="5" x2="12" y2="19"/>
-                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                        <polyline points="17 21 17 13 7 13 7 21"/>
+                        <polyline points="7 3 7 8 15 8"/>
                     </svg>
-                    Add Device
+                    Save Changes
                 </button>
             </div>
         </div>
