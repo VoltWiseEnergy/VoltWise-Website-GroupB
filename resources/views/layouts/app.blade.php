@@ -21,7 +21,7 @@
             --bg-sidebar:       #ffffff;
             --bg-topbar:        #ffffff;
             --bg-card:          #ffffff;
-            --bg-tip:           #f8fafc;
+            --bg-tip:            #f8fafc;
             --bg-feature:       #ffffff;
             --bg-banner:        linear-gradient(135deg,#eef3ff 0%,#e8f0fe 50%,#f0f7ff 100%);
             --bg-banner-border: #bfdbfe;
@@ -63,9 +63,24 @@
             --logout-hover-color: #ef4444;
             --flash-bg: #f0fdf4; --flash-border: #bbf7d0; --flash-color: #166534;
 
+            /* Avatar & Profile */
             --avatar-menu-bg: #ffffff;
             --avatar-menu-border: #e2e8f0;
             --avatar-menu-color: #0f172a;
+
+            /* Budget Tracker */
+            --budget-track-bg:      #e2e8f0;
+            --budget-bar-safe:      #10b981;
+            --budget-bar-warn:      #f59e0b;
+            --budget-bar-danger:    #ef4444;
+            --budget-label-safe:    #065f46;
+            --budget-label-warn:    #78350f;
+            --budget-label-danger:  #7f1d1d;
+            --budget-badge-safe-bg: #d1fae5;
+            --budget-badge-warn-bg: #fef3c7;
+            --budget-badge-danger-bg: #fee2e2;
+            --modal-overlay:        rgba(15,23,42,0.45);
+            --modal-bg:              #ffffff;
         }
 
         [data-theme="dark"] {
@@ -73,7 +88,7 @@
             --bg-sidebar:       #111827;
             --bg-topbar:        #111827;
             --bg-card:          #1a2235;
-            --bg-tip:           #1e2840;
+            --bg-tip:            #1e2840;
             --bg-feature:       #1e2840;
             --bg-banner:        linear-gradient(135deg,#0f1d3a 0%,#0e1a36 60%,#0f1f3d 100%);
             --bg-banner-border: #1e3a5f;
@@ -115,9 +130,24 @@
             --logout-hover-color: #f87171;
             --flash-bg: rgba(16,185,129,0.1); --flash-border: rgba(16,185,129,0.2); --flash-color: #6ee7b7;
 
+            /* Avatar & Profile */
             --avatar-menu-bg: #1a2235;
             --avatar-menu-border: rgba(255,255,255,0.07);
             --avatar-menu-color: #f1f5f9;
+
+            /* Budget Tracker */
+            --budget-track-bg:      rgba(255,255,255,0.08);
+            --budget-bar-safe:      #10b981;
+            --budget-bar-warn:      #f59e0b;
+            --budget-bar-danger:    #ef4444;
+            --budget-label-safe:    #6ee7b7;
+            --budget-label-warn:    #fde047;
+            --budget-label-danger:  #fca5a5;
+            --budget-badge-safe-bg: rgba(16,185,129,0.15);
+            --budget-badge-warn-bg: rgba(245,158,11,0.15);
+            --budget-badge-danger-bg: rgba(239,68,68,0.15);
+            --modal-overlay:        rgba(0,0,0,0.65);
+            --modal-bg:              #1a2235;
         }
 
         /* =============================================
@@ -372,6 +402,155 @@
         .btn-primary svg { width:14px; height:14px; }
 
         /* =============================================
+           BUDGET TRACKER CARD
+        ============================================= */
+        .budget-card { margin-bottom: 1.5rem; }
+        .budget-card-inner { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1.25rem; }
+
+        .budget-left { flex:1; min-width:0; }
+        .budget-amounts {
+            display:flex; align-items:baseline; gap:0.375rem;
+            margin-bottom:0.625rem;
+        }
+        .budget-used {
+            font-size:1.75rem; font-weight:700; letter-spacing:-0.03em;
+            color:var(--text-primary); transition:color 0.25s;
+        }
+        .budget-sep { font-size:1rem; color:var(--text-faint); }
+        .budget-total { font-size:1rem; font-weight:500; color:var(--text-muted); }
+        .budget-no-set { font-size:0.8125rem; color:var(--text-faint); font-style:italic; margin-bottom:0.625rem; }
+
+        /* Progress bar track */
+        .budget-track {
+            width:100%; height:10px; background:var(--budget-track-bg);
+            border-radius:99px; overflow:hidden; margin-bottom:0.5rem;
+        }
+        .budget-fill {
+            height:100%; border-radius:99px;
+            background:var(--budget-bar-safe);
+            transition:width 0.8s cubic-bezier(.4,0,.2,1), background 0.4s;
+            will-change:width;
+        }
+        .budget-fill.warn   { background:var(--budget-bar-warn); }
+        .budget-fill.danger { background:var(--budget-bar-danger); }
+
+        .budget-meta { display:flex; align-items:center; gap:0.5rem; }
+        .budget-pct-badge {
+            display:inline-flex; align-items:center;
+            padding:0.2rem 0.55rem; border-radius:99px;
+            font-size:0.75rem; font-weight:700;
+            background:var(--budget-badge-safe-bg);
+            color:var(--budget-label-safe);
+            transition:background 0.3s,color 0.3s;
+        }
+        .budget-pct-badge.warn   { background:var(--budget-badge-warn-bg);   color:var(--budget-label-warn); }
+        .budget-pct-badge.danger { background:var(--budget-badge-danger-bg); color:var(--budget-label-danger); }
+        .budget-pct-label { font-size:0.75rem; color:var(--text-faint); }
+
+        .budget-right { display:flex; flex-direction:column; align-items:flex-end; gap:0.5rem; flex-shrink:0; }
+        .budget-actions { display:flex; gap:0.5rem; align-items:center; }
+        .btn-budget-set {
+            display:inline-flex; align-items:center; gap:0.375rem;
+            padding:0.45rem 0.875rem; border-radius:8px;
+            font-size:0.8125rem; font-weight:600; font-family:'Inter',sans-serif;
+            background:var(--blue-600); color:#fff; border:none; cursor:pointer;
+            transition:background 0.15s,transform 0.15s,box-shadow 0.15s;
+            box-shadow:0 2px 8px rgba(74,124,246,0.3);
+        }
+        .btn-budget-set:hover { background:var(--blue-700); transform:translateY(-1px); box-shadow:0 4px 12px rgba(74,124,246,0.4); }
+        .btn-budget-set svg { width:13px; height:13px; }
+        .btn-budget-clear {
+            display:inline-flex; align-items:center; gap:0.3rem;
+            padding:0.45rem 0.75rem; border-radius:8px;
+            font-size:0.8125rem; font-weight:500; font-family:'Inter',sans-serif;
+            background:none; color:var(--text-faint); border:1px solid var(--border);
+            cursor:pointer; transition:border-color 0.15s,color 0.15s,background 0.15s;
+        }
+        .btn-budget-clear:hover { border-color:#ef4444; color:#ef4444; background:rgba(239,68,68,0.05); }
+        .btn-budget-clear svg { width:12px; height:12px; }
+
+        /* =============================================
+           BUDGET MODAL
+        ============================================= */
+        .modal-overlay {
+            position:fixed; inset:0; background:var(--modal-overlay);
+            z-index:1000; display:flex; align-items:center; justify-content:center;
+            opacity:0; pointer-events:none;
+            transition:opacity 0.2s;
+            backdrop-filter:blur(2px);
+        }
+        .modal-overlay.open { opacity:1; pointer-events:auto; }
+        .modal {
+            background:var(--modal-bg); border:1px solid var(--border);
+            border-radius:16px; padding:1.75rem; width:100%; max-width:420px;
+            box-shadow:0 20px 60px rgba(0,0,0,0.2);
+            transform:scale(0.95) translateY(8px);
+            transition:transform 0.25s cubic-bezier(.4,0,.2,1), background 0.25s, border-color 0.25s;
+        }
+        .modal-overlay.open .modal { transform:scale(1) translateY(0); }
+        .modal-header {
+            display:flex; align-items:center; justify-content:space-between;
+            margin-bottom:1.25rem;
+        }
+        .modal-title { font-size:1rem; font-weight:700; color:var(--text-primary); transition:color 0.25s; }
+        .modal-close {
+            width:28px; height:28px; display:flex; align-items:center; justify-content:center;
+            border-radius:50%; background:none; border:none; cursor:pointer;
+            color:var(--text-faint); transition:background 0.15s,color 0.15s;
+        }
+        .modal-close:hover { background:var(--icon-btn-hover); color:var(--text-primary); }
+        .modal-close svg { width:14px; height:14px; }
+        .modal-desc { font-size:0.8125rem; color:var(--text-muted); margin-bottom:1.25rem; line-height:1.5; transition:color 0.25s; }
+        .modal-label {
+            display:block; font-size:0.8125rem; font-weight:600;
+            color:var(--text-secondary); margin-bottom:0.4rem; transition:color 0.25s;
+        }
+        .input-with-prefix {
+            display:flex; align-items:center;
+            border:1.5px solid var(--border); border-radius:9px; overflow:hidden;
+            transition:border-color 0.2s, box-shadow 0.2s;
+        }
+        .input-with-prefix:focus-within {
+            border-color:var(--blue-600);
+            box-shadow:0 0 0 3px rgba(74,124,246,0.15);
+        }
+        .input-prefix {
+            padding:0.65rem 0.75rem;
+            background:var(--bg-tip); color:var(--text-muted);
+            font-size:0.875rem; font-weight:600;
+            border-right:1.5px solid var(--border);
+            white-space:nowrap; transition:background 0.25s, border-color 0.25s, color 0.25s;
+        }
+        .input-budget {
+            flex:1; padding:0.65rem 0.875rem;
+            background:transparent; border:none; outline:none;
+            font-size:0.9375rem; font-weight:600;
+            color:var(--text-primary); font-family:'Inter',sans-serif;
+            transition:color 0.25s;
+        }
+        .input-budget::placeholder { color:var(--text-faint); font-weight:400; }
+        .modal-hint { font-size:0.75rem; color:var(--text-faint); margin-top:0.375rem; transition:color 0.25s; }
+        .modal-actions {
+            display:flex; gap:0.625rem; margin-top:1.5rem;
+        }
+        .btn-modal-cancel {
+            flex:1; padding:0.6rem; border-radius:8px;
+            background:none; border:1.5px solid var(--border);
+            font-size:0.875rem; font-weight:600; font-family:'Inter',sans-serif;
+            color:var(--text-muted); cursor:pointer;
+            transition:border-color 0.15s,color 0.15s,background 0.15s;
+        }
+        .btn-modal-cancel:hover { background:var(--nav-hover-bg); color:var(--text-primary); }
+        .btn-modal-save {
+            flex:2; padding:0.6rem; border-radius:8px;
+            background:var(--blue-600); border:none; color:#fff;
+            font-size:0.875rem; font-weight:700; font-family:'Inter',sans-serif;
+            cursor:pointer; transition:background 0.15s,transform 0.1s,box-shadow 0.15s;
+            box-shadow:0 2px 8px rgba(74,124,246,0.3);
+        }
+        .btn-modal-save:hover { background:var(--blue-700); transform:translateY(-1px); box-shadow:0 4px 14px rgba(74,124,246,0.4); }
+
+        /* =============================================
            RESPONSIVE
         ============================================= */
         @media (max-width: 1100px) {
@@ -405,7 +584,7 @@
 
     {{-- ===== SIDEBAR ===== --}}
     <aside class="sidebar">
-        <a href="{{ url('/dashboard') }}" class="sidebar-brand">
+        <a href="{{ auth()->user()->isAdmin() ? route('admin.dashboard') : url('/dashboard') }}" class="sidebar-brand">
             <div class="brand-bolt">
                 <svg viewBox="0 0 24 24"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
             </div>
@@ -413,36 +592,56 @@
         </a>
 
         <nav class="sidebar-nav" aria-label="Main">
-            <a href="{{ url('/dashboard') }}"
-               class="nav-item {{ request()->is('dashboard') ? 'active' : '' }}">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-                    <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
-                </svg>
-                Dashboard
-            </a>
-            <a href="#" class="nav-item {{ request()->is('devices*') ? 'active' : '' }}">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                </svg>
-                My Devices
-            </a>
-            <a href="#" class="nav-item {{ request()->is('tracker*') ? 'active' : '' }}">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                    <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
-                    <line x1="3" y1="10" x2="21" y2="10"/>
-                </svg>
-                Daily Tracker
-            </a>
-            <a href="#" class="nav-item {{ request()->is('analytics*') ? 'active' : '' }}">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="20" x2="18" y2="10"/>
-                    <line x1="12" y1="20" x2="12" y2="4"/>
-                    <line x1="6"  y1="20" x2="6"  y2="14"/>
-                </svg>
-                Analytics
-            </a>
+            @if(auth()->user()->isAdmin())
+                {{-- ========== ADMIN SIDEBAR ========== --}}
+                <a href="{{ route('admin.dashboard') }}"
+                   class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                    Dashboard
+                </a>
+                <a href="{{ route('admin.master-devices.index') }}"
+                   class="nav-item {{ request()->routeIs('admin.master-devices.*') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3"/>
+                    </svg>
+                    Master Devices
+                </a>
+            @else
+                {{-- ========== USER SIDEBAR (unchanged) ========== --}}
+                <a href="{{ url('/dashboard') }}"
+                   class="nav-item {{ request()->is('dashboard') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                    Dashboard
+                </a>
+                <a href="#" class="nav-item {{ request()->is('devices*') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                    </svg>
+                    My Devices
+                </a>
+                <a href="#" class="nav-item {{ request()->is('tracker*') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    Daily Tracker
+                </a>
+                <a href="#" class="nav-item {{ request()->is('analytics*') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"/>
+                        <line x1="12" y1="20" x2="12" y2="4"/>
+                        <line x1="6"  y1="20" x2="6"  y2="14"/>
+                    </svg>
+                    Analytics
+                </a>
+            @endif
         </nav>
 
         <div class="sidebar-footer">
@@ -458,6 +657,7 @@
             </form>
         </div>
     </aside>
+
 
     {{-- ===== MAIN ===== --}}
     <div class="main-area">
