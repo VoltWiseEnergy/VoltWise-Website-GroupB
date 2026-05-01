@@ -42,6 +42,7 @@ Route::middleware('auth')->group(function () {
 
     // Profile Routes
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     // Budget Routes
     Route::post('/budget/update', [BudgetController::class, 'update'])->name('budget.update');
