@@ -151,6 +151,7 @@
                                 </td>
                                 <td style="padding: 0.875rem 1.25rem; text-align: right;">
                                     <div style="display: flex; align-items: center; justify-content: flex-end; gap: 0.375rem;">
+                                        {{-- PBI #3: Edit Button --}}
                                         <a href="{{ route('admin.master-devices.edit', $device) }}"
                                            style="display: inline-flex; align-items: center; gap: 0.25rem;
                                                   padding: 0.375rem 0.75rem; border-radius: 6px;
@@ -167,9 +168,11 @@
                                             </svg>
                                             Edit
                                         </a>
+
+                                        {{-- PBI #4: Delete Button --}}
                                         <form method="POST"
                                               action="{{ route('admin.master-devices.destroy', $device) }}"
-                                              onsubmit="return confirm('Delete {{ $device->name }}?')">
+                                              onsubmit="return confirm('⚠️ Delete \'{{ $device->name }}\'?\n\nCategory: {{ $device->category }}\nWattage: {{ number_format($device->wattage, 0) }} W\n\nThis action cannot be undone.')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"
@@ -199,7 +202,7 @@
             </div>
         </div>
     @else
-        {{-- Better Empty State --}}
+        {{-- Empty State --}}
         <div class="card">
             <div style="padding: 3rem 2rem; text-align: center;">
                 <div style="width: 64px; height: 64px; border-radius: 16px;

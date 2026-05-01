@@ -70,6 +70,41 @@
         </div>
     </div>
 
+        {{-- Device Info Banner --}}    
+    <div style="max-width: 640px; display: flex; align-items: center; gap: 1rem;
+                padding: 0.75rem 1rem; margin-bottom: 1rem;
+                background: var(--bg-banner); border: 1px solid var(--bg-banner-border);
+                border-radius: 10px;">
+        <div style="width: 36px; height: 36px; border-radius: 8px;
+                    background: var(--icon-orange-bg); color: var(--icon-orange-fg);
+                    display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+        </div>
+        <div style="flex: 1; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+                <div style="font-size: 0.8125rem; font-weight: 600; color: var(--text-primary);">
+                    {{ $masterDevice->name }}
+                    <span style="display: inline-block; padding: 0.125rem 0.5rem; margin-left: 0.375rem;
+                                 background: var(--icon-blue-bg); color: var(--icon-blue-fg);
+                                 border-radius: 5px; font-size: 0.6875rem; font-weight: 600;">
+                        {{ $masterDevice->category }}
+                    </span>
+                </div>
+                <div style="font-size: 0.6875rem; color: var(--text-muted); margin-top: 2px;">
+                    Created {{ $masterDevice->created_at->format('d M Y') }}
+                    · Last updated {{ $masterDevice->updated_at->diffForHumans() }}
+                </div>
+            </div>
+            <div style="font-size: 0.8125rem; font-weight: 700; color: var(--text-primary);">
+                {{ number_format($masterDevice->wattage, 0) }} W
+            </div>
+        </div>
+    </div>
+
+
     <form method="POST" action="{{ route('admin.master-devices.update', $masterDevice) }}">
         @csrf
         @method('PUT')
