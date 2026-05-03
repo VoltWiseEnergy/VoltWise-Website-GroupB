@@ -34,6 +34,15 @@
                         <a href="{{ route('devices.edit', $device->id) }}">
                             Edit
                         </a>
+
+                        <form action="{{ route('devices.destroy', $device->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+
+                            <button type="submit" onclick="return confirm('Are you sure you want to delete this device?')">
+                                Delete
+                            </button>
+                        </form>
                     </td>
                 </tr>
             @empty

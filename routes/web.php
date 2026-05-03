@@ -62,6 +62,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/devices', [DeviceController::class, 'store'])->name('devices.store');
     Route::get('/devices/{device}/edit', [DeviceController::class, 'edit'])->name('devices.edit');
     Route::put('/devices/{device}', [DeviceController::class, 'update'])->name('devices.update');
+    Route::delete('/devices/{device}', [DeviceController::class, 'destroy'])->name('devices.destroy');
  
     /*
     |--------------------------------------------------------------------------

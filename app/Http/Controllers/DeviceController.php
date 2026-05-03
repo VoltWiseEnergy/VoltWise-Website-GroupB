@@ -75,6 +75,13 @@ class DeviceController extends Controller
 
     public function destroy(Device $device)
     {
-        //
+        if ($device->user_id != auth()->id()) {
+            abort(403);
+        }
+
+        $device->delete();
+
+        return redirect()->route('devices.index')
+            ->with('success', 'Device deleted successfully.');
     }
 }
