@@ -19,6 +19,7 @@
                 <th>Device Name</th>
                 <th>Wattage</th>
                 <th>Category</th>
+                <th>Action</th>
             </tr>
         </thead>
 
@@ -29,10 +30,15 @@
                     <td>{{ $device->name }}</td>
                     <td>{{ $device->wattage }} W</td>
                     <td>{{ $device->category }}</td>
+                    <td>
+                        <a href="{{ route('devices.edit', $device->id) }}">
+                            Edit
+                        </a>
+                    </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="4">No devices added yet.</td>
+                    <td colspan="5">No devices added yet.</td>
                 </tr>
             @endforelse
         </tbody>

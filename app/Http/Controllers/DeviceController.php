@@ -33,7 +33,8 @@ class DeviceController extends Controller
             'category' => $request->category
         ]);
 
-        return redirect()->route('devices.index')->with('success', 'Device added successfully.');
+        return redirect()->route('devices.index')
+            ->with('success', 'Device added successfully.');
     }
 
     public function show(Device $device)
@@ -43,12 +44,33 @@ class DeviceController extends Controller
 
     public function edit(Device $device)
     {
-        //
+        if ($device->user_id != auth()->id()) {
+            abort(403);
+        }
+
+        return view('devices.edit', compact('device'));
     }
 
     public function update(Request $request, Device $device)
     {
-        //
+        if ($device->user_id != auth()->id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'name' => 'required|max:255',
+            'wattage' => 'required|integer|min:1',
+            'category' => 'required|max:255'
+        ]);
+
+        $device->update([
+            'name' => $request->name,
+            'wattage' => $request->wattage,
+            'category' => $request->category
+        ]);
+
+        return redirect()->route('devices.index')
+            ->with('success', 'Device updated successfully.');
     }
 
     public function destroy(Device $device)
