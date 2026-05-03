@@ -6,7 +6,6 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UsageController;
-use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\Admin\MasterDeviceController;
 use App\Http\Controllers\Admin\AdminDashboardController;
  
@@ -55,14 +54,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/usage/override', [UsageController::class, 'override'])->name('usage.override');
     Route::get('/usage/history',  [UsageController::class, 'history'])->name('usage.history');
     Route::get('/usage/today',    [UsageController::class, 'today'])->name('usage.today');
-
-    // Device Routes
-    Route::get('/devices', [DeviceController::class, 'index'])->name('devices.index');
-    Route::get('/devices/create', [DeviceController::class, 'create'])->name('devices.create');
-    Route::post('/devices', [DeviceController::class, 'store'])->name('devices.store');
-    Route::get('/devices/{device}/edit', [DeviceController::class, 'edit'])->name('devices.edit');
-    Route::put('/devices/{device}', [DeviceController::class, 'update'])->name('devices.update');
-    Route::delete('/devices/{device}', [DeviceController::class, 'destroy'])->name('devices.destroy');
  
     /*
     |--------------------------------------------------------------------------
