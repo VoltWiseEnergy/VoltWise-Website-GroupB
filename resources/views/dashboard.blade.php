@@ -3,18 +3,6 @@
 @section('title', 'Dashboard')
 @section('meta-desc', 'VoltWise Energy Dashboard - Monitor your electricity consumption')
 
-@php
-    /* ---- Budget calculations ---- */
-    $budget      = auth()->user()->monthly_budget;         // null = not set
-    $monthlyCost = 0;                                      // TODO: replace with real monthly cost
-    $pct         = ($budget && $budget > 0)
-                    ? min(round(($monthlyCost / $budget) * 100, 1), 100)
-                    : 0;
-    $fillClass   = $pct >= 90 ? 'danger' : ($pct >= 70 ? 'warn' : '');
-    $budgetFmt   = $budget ? 'Rp ' . number_format($budget, 0, ',', '.') : null;
-    $usedFmt     = 'Rp ' . number_format($monthlyCost, 0, ',', '.');
-@endphp
-
 @section('content')
 
     {{-- Page Header --}}
@@ -32,57 +20,67 @@
     </div>
 
     {{-- Welcome Banner --}}
-    <div class="welcome-banner">
-        <div class="welcome-top">
-            <div class="welcome-bolt">
-                <svg viewBox="0 0 24 24"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
+    <div class="welcome-banner" id="welcomeBanner">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div class="welcome-top" style="margin-bottom:0;">
+                <div class="welcome-bolt">
+                    <svg viewBox="0 0 24 24"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
+                </div>
+                <div>
+                    <div class="welcome-heading">Welcome to <span>VoltWise!</span></div>
+                    <div class="welcome-user">Hi, {{ auth()->user()->name }}!</div>
+                </div>
             </div>
-            <div>
-                <div class="welcome-heading">Welcome to <span>VoltWise!</span></div>
-                <div class="welcome-user">Hi, {{ auth()->user()->name }}!</div>
-            </div>
+            <button class="welcome-close" id="welcomeToggle" title="Toggle banner" aria-label="Toggle banner" aria-expanded="true">
+                <svg id="bannerChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;transition:transform 0.3s;">
+                    <polyline points="18 15 12 9 6 15"/>
+                </svg>
+            </button>
         </div>
-        <p class="welcome-desc">
-            Get started by adding your electronic devices to begin monitoring your energy consumption and discover opportunities to save money.
-        </p>
-        <div class="welcome-features">
-            <div class="welcome-feature">
-                <div class="wf-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="3"/>
-                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
-                    </svg>
+        <div class="welcome-banner-body" id="welcomeBody">
+            <p class="welcome-desc" style="margin-top:0.6rem;">
+                Get started by adding your electronic devices to begin monitoring your energy consumption and discover opportunities to save money.
+            </p>
+            <div class="welcome-features">
+                <div class="welcome-feature">
+                    <div class="wf-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="wf-title">Track Usage</div>
+                        <div class="wf-desc">Monitor device consumption in real-time</div>
+                    </div>
                 </div>
-                <div>
-                    <div class="wf-title">Track Usage</div>
-                    <div class="wf-desc">Monitor device consumption in real-time</div>
+                <div class="welcome-feature">
+                    <div class="wf-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="1" x2="12" y2="23"/>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="wf-title">Save Money</div>
+                        <div class="wf-desc">Get personalized energy-saving tips</div>
+                    </div>
                 </div>
-            </div>
-            <div class="welcome-feature">
-                <div class="wf-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="1" x2="12" y2="23"/>
-                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                    </svg>
-                </div>
-                <div>
-                    <div class="wf-title">Save Money</div>
-                    <div class="wf-desc">Get personalized energy-saving tips</div>
-                </div>
-            </div>
-            <div class="welcome-feature">
-                <div class="wf-icon green">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                    </svg>
-                </div>
-                <div>
-                    <div class="wf-title">SDG 7 Support</div>
-                    <div class="wf-desc">Contribute to sustainable energy goals</div>
+                <div class="welcome-feature">
+                    <div class="wf-icon green">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="wf-title">SDG 7 Support</div>
+                        <div class="wf-desc">Contribute to sustainable energy goals</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
 
     {{-- Stat Cards --}}
     <div class="stat-grid">
@@ -130,6 +128,7 @@
                 </div>
                 <div class="stat-value">Rp.0</div>
                 <div class="stat-detail">Rp.0/month</div>
+                <div style="margin-top:0.4rem;font-size:0.65rem;color:var(--text-faint);font-family:monospace;">W &times; h &divide; 1000 = kWh &rarr; cost</div>
             </div>
         </div>
 
@@ -156,27 +155,50 @@
         </div>
     </div>
 
-    {{-- Budget Tracker Card --}}
-    <div class="card budget-card" id="budget-tracker-card">
-        <div class="card-body">
-            <div class="budget-card-inner">
-                <div class="budget-left">
-                    {{-- Header row --}}
-                    <div class="stat-header" style="margin-bottom:0.75rem">
-                        <span class="stat-label">
-                            <svg style="width:13px;height:13px;display:inline;vertical-align:-1px;margin-right:4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="2" y="7" width="20" height="14" rx="2"/>
-                                <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
-                            </svg>
-                            Monthly Budget
-                        </span>
-                        <div class="stat-icon icon-{{ $fillClass === 'danger' ? 'orange' : ($fillClass === 'warn' ? 'orange' : 'blue') }}">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="12" y1="1" x2="12" y2="23"/>
-                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                            </svg>
-                        </div>
+{{-- Budget Tracker Card --}}
+<div class="card budget-card" id="budget-tracker-card">
+    <div class="card-body">
+        
+        @php
+            // 1. Set your budget limit (you could also pass this from the controller)
+            $monthlyBudget = 500000; 
+            
+            // 2. Calculate current spending (assuming you have $todayEnergyKwh and a rate)
+            // Example: Today's energy * 30 days * rate per kWh (e.g., 1500)
+            $estimatedSpend = ($todayEnergyKwh ?? 0) * 30 * 1500;
+            
+            // 3. Calculate percentage
+            $usagePercentage = ($estimatedSpend / $monthlyBudget) * 100;
+
+            // 4. Define the missing $fillClass
+            if ($usagePercentage > 90) {
+                $fillClass = 'danger';
+            } elseif ($usagePercentage > 70) {
+                $fillClass = 'warn';
+            } else {
+                $fillClass = 'safe';
+            }
+        @endphp
+
+        <div class="budget-card-inner">
+            <div class="budget-left">
+                {{-- Header row --}}
+                <div class="stat-header" style="margin-bottom:0.75rem">
+                    <span class="stat-label">
+                        <svg style="width:13px;height:13px;display:inline;vertical-align:-1px;margin-right:4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="7" width="20" height="14" rx="2"/>
+                            <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+                        </svg>
+                        Monthly Budget
+                    </span>
+                    {{-- Now $fillClass is defined and line 172 won't crash --}}
+                    <div class="stat-icon icon-{{ $fillClass === 'danger' ? 'orange' : ($fillClass === 'warn' ? 'orange' : 'blue') }}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="1" x2="12" y2="23"/>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                        </svg>
                     </div>
+                </div>
 
                     @if($budget)
                         {{-- Amounts --}}
@@ -271,7 +293,6 @@
                             </div>
                         @endforeach
                     </div>
-                @endif
             </div>
         </div>
 
@@ -279,33 +300,152 @@
             <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
                 <div class="card-title">Energy by Category</div>
                 <div class="card-subtitle">Distribution across device categories</div>
-                @if($energyByCategory->isEmpty())
-                    <div class="empty-state">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
-                            <path d="M22 12A10 10 0 0 0 12 2v10z"/>
-                        </svg>
-                        <p>No data available</p>
-                    </div>
-                @else
-                    <div class="list-block" style="margin-top:1rem;">
-                        @foreach($energyByCategory as $category => $kwh)
-                            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 0;border-bottom:1px solid var(--border);">
-                                <span>{{ $category }}</span>
-                                <span>{{ number_format($kwh, 2) }} kWh</span>
+                <div class="empty-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
+                        <path d="M22 12A10 10 0 0 0 12 2v10z"/>
+                    </svg>
+                    <p>No data available</p>
+                </div>
+            </div>
+        </div>
+        @endif
+    </div>
+
+    {{-- Energy Consumers Table --}}
+    @if($hasDevices)
+    <div class="card" style="margin-bottom:1.5rem;">
+        <div class="card-body">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+                <div>
+                    <div class="card-title">All Devices</div>
+                    <div class="card-subtitle">Device-level breakdown &middot; {{ now()->format('j F Y') }}</div>
+                </div>
+            </div>
+            <table class="consumers-table">
+                <thead>
+                    <tr>
+                        <th style="width:28px;">#</th>
+                        <th>Device</th>
+                        <th>Status</th>
+                        <th style="min-width:160px;">Daily Usage</th>
+                        <th>Power</th>
+                        <th>Monthly Cost</th>
+                        <th>7-Day Trend</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="color:var(--text-faint);font-size:0.72rem;">1</td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:0.6rem;">
+                                <div class="dev-avatar av-blue" style="background:#dbeafe;color:#4A7CF6;">AC</div>
+                                <div>
+                                    <div style="font-weight:600;font-size:0.8rem;color:var(--text-primary);">Air Conditioner</div>
+                                    <div style="font-size:0.68rem;color:var(--text-faint);">Climate &middot; Living Room</div>
+                                </div>
                             </div>
-                        @endforeach
-                    </div>
-                @endif
+                        </td>
+                        <td><span class="status-badge status-active">active</span></td>
+                        <td><div class="kwh-bar-wrap"><div class="kwh-bar-bg"><div class="kwh-bar-fill" style="width:78%;background:#4A7CF6;"></div></div><span class="kwh-bar-val">2.40 kWh</span></div></td>
+                        <td style="font-weight:500;">900 W</td>
+                        <td style="color:var(--icon-green-fg);font-weight:600;">Rp 25,920</td>
+                        <td><canvas class="spark-canvas" data-vals="1.8,2.1,2.3,2.0,2.5,2.2,2.4" data-color="#4A7CF6" width="64" height="28"></canvas></td>
+                    </tr>
+                    <tr>
+                        <td style="color:var(--text-faint);font-size:0.72rem;">2</td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:0.6rem;">
+                                <div class="dev-avatar av-green" style="background:#d1fae5;color:#10b981;">WH</div>
+                                <div>
+                                    <div style="font-weight:600;font-size:0.8rem;color:var(--text-primary);">Water Heater</div>
+                                    <div style="font-size:0.68rem;color:var(--text-faint);">Appliance &middot; Bathroom</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="status-badge status-active">active</span></td>
+                        <td><div class="kwh-bar-wrap"><div class="kwh-bar-bg"><div class="kwh-bar-fill" style="width:58%;background:#10b981;"></div></div><span class="kwh-bar-val">1.80 kWh</span></div></td>
+                        <td style="font-weight:500;">1200 W</td>
+                        <td style="color:var(--icon-green-fg);font-weight:600;">Rp 19,440</td>
+                        <td><canvas class="spark-canvas" data-vals="1.6,1.9,1.7,1.8,2.0,1.7,1.8" data-color="#10b981" width="64" height="28"></canvas></td>
+                    </tr>
+                    <tr>
+                        <td style="color:var(--text-faint);font-size:0.72rem;">3</td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:0.6rem;">
+                                <div class="dev-avatar av-purple" style="background:#ede9fe;color:#8b5cf6;">RF</div>
+                                <div>
+                                    <div style="font-weight:600;font-size:0.8rem;color:var(--text-primary);">Refrigerator</div>
+                                    <div style="font-size:0.68rem;color:var(--text-faint);">Appliance &middot; Kitchen</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="status-badge status-active">active</span></td>
+                        <td><div class="kwh-bar-wrap"><div class="kwh-bar-bg"><div class="kwh-bar-fill" style="width:31%;background:#8b5cf6;"></div></div><span class="kwh-bar-val">0.96 kWh</span></div></td>
+                        <td style="font-weight:500;">80 W</td>
+                        <td style="color:var(--icon-orange-fg);font-weight:600;">Rp 10,368</td>
+                        <td><canvas class="spark-canvas" data-vals="0.9,0.95,0.92,0.98,0.96,0.94,0.96" data-color="#8b5cf6" width="64" height="28"></canvas></td>
+                    </tr>
+                    <tr>
+                        <td style="color:var(--text-faint);font-size:0.72rem;">4</td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:0.6rem;">
+                                <div class="dev-avatar av-yellow" style="background:#fef9c3;color:#ca8a04;">WM</div>
+                                <div>
+                                    <div style="font-weight:600;font-size:0.8rem;color:var(--text-primary);">Washing Machine</div>
+                                    <div style="font-size:0.68rem;color:var(--text-faint);">Appliance &middot; Laundry</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="status-badge status-standby">standby</span></td>
+                        <td><div class="kwh-bar-wrap"><div class="kwh-bar-bg"><div class="kwh-bar-fill" style="width:24%;background:#f59e0b;"></div></div><span class="kwh-bar-val">0.75 kWh</span></div></td>
+                        <td style="font-weight:500;">500 W</td>
+                        <td style="color:var(--icon-green-fg);font-weight:600;">Rp 8,100</td>
+                        <td><canvas class="spark-canvas" data-vals="0.5,0.8,0.6,0.9,0.7,0.75,0.75" data-color="#f59e0b" width="64" height="28"></canvas></td>
+                    </tr>
+                    <tr>
+                        <td style="color:var(--text-faint);font-size:0.72rem;">5</td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:0.6rem;">
+                                <div class="dev-avatar av-red" style="background:#fee2e2;color:#dc2626;">TV</div>
+                                <div>
+                                    <div style="font-weight:600;font-size:0.8rem;color:var(--text-primary);">Smart TV</div>
+                                    <div style="font-size:0.68rem;color:var(--text-faint);">Entertainment &middot; Living Room</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="status-badge status-off">off</span></td>
+                        <td><div class="kwh-bar-wrap"><div class="kwh-bar-bg"><div class="kwh-bar-fill" style="width:10%;background:#f87171;"></div></div><span class="kwh-bar-val">0.30 kWh</span></div></td>
+                        <td style="font-weight:500;">150 W</td>
+                        <td style="color:var(--text-muted);font-weight:600;">Rp 3,240</td>
+                        <td><canvas class="spark-canvas" data-vals="0.4,0.35,0.3,0.45,0.25,0.3,0.3" data-color="#f87171" width="64" height="28"></canvas></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @else
+    <div class="card" style="margin-bottom:1.5rem;">
+        <div class="card-body" style="display:flex;flex-direction:column;min-height:180px;">
+            <div class="card-title">All Devices</div>
+            <div class="card-subtitle" style="margin-bottom:0.75rem;">Device-level breakdown &middot; {{ now()->format('j F Y') }}</div>
+            <div class="empty-state" style="flex:1;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/>
+                    <line x1="9" y1="3" x2="9" y2="21"/>
+                </svg>
+                <p>No devices added yet. Add some devices to see your energy breakdown.</p>
             </div>
         </div>
     </div>
+    @endif
 
-    {{-- Energy Tips --}}
-    <div class="card">
+    {{-- Smart Recommendations (PBI 2) --}}
+    <div class="card" style="margin-bottom:1.5rem;">
         <div class="card-body">
-            <div class="card-title">Energy Saving Tips</div>
-            <div class="card-subtitle" style="margin-bottom:1rem;">Simple actions to reduce your electricity bill</div>
+            <div class="card-title" style="margin-bottom:0.25rem;">Smart Recommendations</div>
+            <div class="card-subtitle" style="margin-bottom:1rem;">Personalized tips based on your highest-consuming devices</div>
             <div class="tips-grid">
                 <div class="tip-item">
                     <div class="tip-icon tip-icon-yellow">
@@ -334,7 +474,7 @@
                     </div>
                     <div>
                         <div class="tip-title">Use AC efficiently</div>
-                        <div class="tip-desc">Set temperature to 24–26°C for optimal savings</div>
+                        <div class="tip-desc">Set temperature to 24-26&deg;C for optimal savings</div>
                     </div>
                 </div>
 
@@ -354,113 +494,5 @@
         </div>
     </div>
 
-    {{-- ===== SET BUDGET MODAL ===== --}}
-    <div class="modal-overlay" id="budget-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="budget-modal-title">
-        <div class="modal" id="budget-modal">
-            <div class="modal-header">
-                <span class="modal-title" id="budget-modal-title">
-                    <svg style="width:15px;height:15px;display:inline;vertical-align:-2px;margin-right:6px;color:var(--blue-600)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="1" x2="12" y2="23"/>
-                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                    </svg>
-                    {{ $budget ? 'Edit Monthly Budget' : 'Set Monthly Budget' }}
-                </span>
-                <button class="modal-close" id="close-budget-modal" type="button" aria-label="Close">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                    </svg>
-                </button>
-            </div>
-
-            <p class="modal-desc">
-                Set a monthly energy cost limit to help you stay on track.
-                You'll see a visual indicator on your dashboard whenever your usage approaches the limit.
-            </p>
-
-            <form method="POST" action="{{ route('budget.update') }}" id="budget-form">
-                @csrf
-                <label for="monthly_budget" class="modal-label">Monthly Budget (Rupiah)</label>
-                <div class="input-with-prefix">
-                    <span class="input-prefix">Rp</span>
-                    <input
-                        type="number"
-                        id="monthly_budget"
-                        name="monthly_budget"
-                        class="input-budget"
-                        placeholder="e.g. 500000"
-                        min="0"
-                        step="1000"
-                        value="{{ old('monthly_budget', $budget ? intval($budget) : '') }}"
-                        required
-                        autocomplete="off"
-                    >
-                </div>
-                <p class="modal-hint">Enter the maximum amount in Rupiah you want to spend on electricity per month.</p>
-
-                @error('monthly_budget')
-                    <p style="color:#ef4444;font-size:0.75rem;margin-top:0.375rem;">{{ $message }}</p>
-                @enderror
-
-                <div class="modal-actions">
-                    <button type="button" class="btn-modal-cancel" id="cancel-budget-modal">Cancel</button>
-                    <button type="submit" class="btn-modal-save">Save Budget</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
 @endsection
 
-@section('scripts')
-    <script>
-        // ---- Budget Modal ----
-        const overlay     = document.getElementById('budget-modal-overlay');
-        const openBtn     = document.getElementById('open-budget-modal');
-        const closeBtn    = document.getElementById('close-budget-modal');
-        const cancelBtn   = document.getElementById('cancel-budget-modal');
-        const budgetInput = document.getElementById('monthly_budget');
-
-        function openModal() {
-            overlay.classList.add('open');
-            setTimeout(() => budgetInput && budgetInput.focus(), 150);
-            document.body.style.overflow = 'hidden';
-        }
-        function closeModal() {
-            overlay.classList.remove('open');
-            document.body.style.overflow = '';
-        }
-
-        openBtn   && openBtn.addEventListener('click', openModal);
-        closeBtn  && closeBtn.addEventListener('click', closeModal);
-        cancelBtn && cancelBtn.addEventListener('click', closeModal);
-
-        // Close on overlay click (outside modal box)
-        overlay && overlay.addEventListener('click', function(e) {
-            if (e.target === overlay) closeModal();
-        });
-
-        // Close on Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && overlay.classList.contains('open')) closeModal();
-        });
-
-        // Auto-open modal if there's a validation error on the budget field
-        @error('monthly_budget')
-            openModal();
-        @enderror
-
-        // Animate the progress bar on load
-        window.addEventListener('load', function () {
-            const fill  = document.getElementById('budget-fill-bar');
-            const badge = document.getElementById('budget-pct-badge');
-            if (!fill) return;
-            const target = parseFloat(fill.style.width) || 0;
-            fill.style.width = '0%';
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    fill.style.width = target + '%';
-                });
-            });
-        });
-    </script>
-@endsection
