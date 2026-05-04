@@ -155,27 +155,50 @@
         </div>
     </div>
 
-    {{-- Budget Tracker Card --}}
-    <div class="card budget-card" id="budget-tracker-card">
-        <div class="card-body">
-            <div class="budget-card-inner">
-                <div class="budget-left">
-                    {{-- Header row --}}
-                    <div class="stat-header" style="margin-bottom:0.75rem">
-                        <span class="stat-label">
-                            <svg style="width:13px;height:13px;display:inline;vertical-align:-1px;margin-right:4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="2" y="7" width="20" height="14" rx="2"/>
-                                <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
-                            </svg>
-                            Monthly Budget
-                        </span>
-                        <div class="stat-icon icon-{{ $fillClass === 'danger' ? 'orange' : ($fillClass === 'warn' ? 'orange' : 'blue') }}">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="12" y1="1" x2="12" y2="23"/>
-                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                            </svg>
-                        </div>
+{{-- Budget Tracker Card --}}
+<div class="card budget-card" id="budget-tracker-card">
+    <div class="card-body">
+        
+        @php
+            // 1. Set your budget limit (you could also pass this from the controller)
+            $monthlyBudget = 500000; 
+            
+            // 2. Calculate current spending (assuming you have $todayEnergyKwh and a rate)
+            // Example: Today's energy * 30 days * rate per kWh (e.g., 1500)
+            $estimatedSpend = ($todayEnergyKwh ?? 0) * 30 * 1500;
+            
+            // 3. Calculate percentage
+            $usagePercentage = ($estimatedSpend / $monthlyBudget) * 100;
+
+            // 4. Define the missing $fillClass
+            if ($usagePercentage > 90) {
+                $fillClass = 'danger';
+            } elseif ($usagePercentage > 70) {
+                $fillClass = 'warn';
+            } else {
+                $fillClass = 'safe';
+            }
+        @endphp
+
+        <div class="budget-card-inner">
+            <div class="budget-left">
+                {{-- Header row --}}
+                <div class="stat-header" style="margin-bottom:0.75rem">
+                    <span class="stat-label">
+                        <svg style="width:13px;height:13px;display:inline;vertical-align:-1px;margin-right:4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="7" width="20" height="14" rx="2"/>
+                            <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+                        </svg>
+                        Monthly Budget
+                    </span>
+                    {{-- Now $fillClass is defined and line 172 won't crash --}}
+                    <div class="stat-icon icon-{{ $fillClass === 'danger' ? 'orange' : ($fillClass === 'warn' ? 'orange' : 'blue') }}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="1" x2="12" y2="23"/>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                        </svg>
                     </div>
+                </div>
 
                     @if($budget)
                         {{-- Amounts --}}
@@ -270,7 +293,6 @@
                             </div>
                         @endforeach
                     </div>
-                @endif
             </div>
         </div>
 
