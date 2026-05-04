@@ -3,69 +3,6 @@
 @section('title', 'Dashboard')
 @section('meta-desc', 'VoltWise Energy Dashboard - Monitor your electricity consumption')
 
-@section('styles')
-<style>
-/* ── Chart legend pills ── */
-.chart-legend { display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; }
-.legend-item  { display:flex; align-items:center; gap:0.3rem; font-size:0.72rem; color:var(--text-muted); }
-.legend-dot   { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-
-/* ── Consumers table ── */
-.consumers-table { width:100%; border-collapse:collapse; }
-.consumers-table thead th {
-    font-size:0.72rem; font-weight:600; color:var(--text-muted);
-    text-transform:uppercase; letter-spacing:0.06em;
-    padding:0.4rem 0.75rem; border-bottom:1px solid var(--border); text-align:left;
-}
-.consumers-table tbody td {
-    padding:0.6rem 0.75rem; font-size:0.8rem; color:var(--text-secondary);
-    border-bottom:1px solid var(--border); vertical-align:middle;
-}
-.consumers-table tbody tr:last-child td { border-bottom:none; }
-.consumers-table tbody tr:hover td { background:rgba(74,124,246,0.04); }
-
-/* ── Device avatar ── */
-.dev-avatar {
-    width:30px; height:30px; border-radius:50%;
-    display:inline-flex; align-items:center; justify-content:center;
-    font-size:0.65rem; font-weight:700; flex-shrink:0;
-}
-
-/* ── kWh progress bar ── */
-.kwh-bar-wrap { display:flex; align-items:center; gap:0.5rem; }
-.kwh-bar-bg   { flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
-.kwh-bar-fill { height:100%; border-radius:3px; }
-.kwh-bar-val  { font-size:0.75rem; font-weight:600; min-width:52px; color:var(--text-primary); }
-
-/* ── Status badges ── */
-.status-badge { display:inline-flex; align-items:center; padding:0.2rem 0.55rem; border-radius:20px; font-size:0.68rem; font-weight:600; }
-.status-active  { background:#d1fae5; color:#059669; }
-.status-standby { background:#fef9c3; color:#ca8a04; }
-.status-off     { background:#fee2e2; color:#dc2626; }
-[data-theme="dark"] .status-active  { background:rgba(5,150,105,0.2);  color:#6ee7b7; }
-[data-theme="dark"] .status-standby { background:rgba(202,138,4,0.2);  color:#fde047; }
-[data-theme="dark"] .status-off     { background:rgba(220,38,38,0.2);  color:#fca5a5; }
-[data-theme="dark"] .dev-avatar.av-blue   { background:rgba(74,124,246,0.2)!important; color:#93b4fb!important; }
-[data-theme="dark"] .dev-avatar.av-green  { background:rgba(16,185,129,0.2)!important; color:#6ee7b7!important; }
-[data-theme="dark"] .dev-avatar.av-purple { background:rgba(139,92,246,0.2)!important; color:#c4b5fd!important; }
-[data-theme="dark"] .dev-avatar.av-yellow { background:rgba(202,138,4,0.2)!important;  color:#fde047!important; }
-[data-theme="dark"] .dev-avatar.av-red    { background:rgba(220,38,38,0.2)!important;  color:#fca5a5!important; }
-
-/* ── Welcome banner close button ── */
-.welcome-banner { position:relative; }
-.welcome-close {
-    position:absolute; top:0.65rem; right:0.75rem;
-    width:26px; height:26px; border-radius:50%;
-    border:none; background:transparent;
-    cursor:pointer; font-size:1.1rem; line-height:1;
-    color:var(--text-muted); display:flex; align-items:center; justify-content:center;
-    transition:background 0.15s, color 0.15s;
-}
-.welcome-close:hover { background:var(--icon-btn-hover); color:var(--text-primary); }
-
-</style>
-@endsection
-
 @section('content')
 
     {{-- Page Header --}}
@@ -157,7 +94,7 @@
                         </svg>
                     </div>
                 </div>
-                <div class="stat-value">0</div>
+                <div class="stat-value">{{ $totalDevices }}</div>
                 <div class="stat-detail">Active devices monitored</div>
             </div>
         </div>
@@ -173,7 +110,7 @@
                         </svg>
                     </div>
                 </div>
-                <div class="stat-value">0.00 <small>kWh</small></div>
+                <div class="stat-value">{{ number_format($todayEnergyKwh, 2) }} <small>kWh</small></div>
                 <div class="stat-detail">Energy consumed today</div>
             </div>
         </div>
@@ -206,8 +143,105 @@
                         </svg>
                     </div>
                 </div>
-                <div class="stat-value na">N/A</div>
-                <div class="stat-detail">Highest energy usage</div>
+                <div class="stat-value na">{{ $topConsumer ? $topConsumer->name : 'N/A' }}</div>
+                <div class="stat-detail">
+                    @if($topConsumer)
+                        {{ number_format($topConsumer->daily_energy_kwh, 2) }} kWh/day
+                    @else
+                        Highest energy usage
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Budget Tracker Card --}}
+    <div class="card budget-card" id="budget-tracker-card">
+        <div class="card-body">
+            <div class="budget-card-inner">
+                <div class="budget-left">
+                    {{-- Header row --}}
+                    <div class="stat-header" style="margin-bottom:0.75rem">
+                        <span class="stat-label">
+                            <svg style="width:13px;height:13px;display:inline;vertical-align:-1px;margin-right:4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="7" width="20" height="14" rx="2"/>
+                                <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+                            </svg>
+                            Monthly Budget
+                        </span>
+                        <div class="stat-icon icon-{{ $fillClass === 'danger' ? 'orange' : ($fillClass === 'warn' ? 'orange' : 'blue') }}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="1" x2="12" y2="23"/>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    @if($budget)
+                        {{-- Amounts --}}
+                        <div class="budget-amounts">
+                            <span class="budget-used">{{ $usedFmt }}</span>
+                            <span class="budget-sep">/</span>
+                            <span class="budget-total">{{ $budgetFmt }}</span>
+                        </div>
+
+                        {{-- Progress bar --}}
+                        <div class="budget-track" role="progressbar" aria-valuenow="{{ $pct }}" aria-valuemin="0" aria-valuemax="100" aria-label="Budget usage">
+                            <div class="budget-fill {{ $fillClass }}" id="budget-fill-bar" style="width:{{ $pct }}%"></div>
+                        </div>
+
+                        {{-- Meta info --}}
+                        <div class="budget-meta">
+                            <span class="budget-pct-badge {{ $fillClass }}" id="budget-pct-badge">{{ $pct }}%</span>
+                            <span class="budget-pct-label">
+                                @if($fillClass === 'danger')
+                                    ⚠️ Approaching or over budget!
+                                @elseif($fillClass === 'warn')
+                                    🟡 Getting close to your limit
+                                @else
+                                    ✅ Within budget
+                                @endif
+                            </span>
+                        </div>
+                    @else
+                        <div class="budget-no-set">No monthly budget set yet.</div>
+                        <div class="budget-track">
+                            <div class="budget-fill" style="width:0%"></div>
+                        </div>
+                        <div class="budget-meta">
+                            <span class="budget-pct-label">Set a budget to start tracking your usage</span>
+                        </div>
+                    @endif
+                </div>
+
+                {{-- Right side: actions --}}
+                <div class="budget-right">
+                    <div class="budget-actions">
+                        <button class="btn-budget-set" id="open-budget-modal" type="button" aria-haspopup="dialog">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                            {{ $budget ? 'Edit Budget' : 'Set Budget' }}
+                        </button>
+
+                        @if($budget)
+                        <form method="POST" action="{{ route('budget.clear') }}" style="margin:0">
+                            @csrf
+                            <button type="submit" class="btn-budget-clear"
+                                    onclick="return confirm('Remove your monthly budget?')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6l-1 14H6L5 6"/>
+                                    <path d="M10 11v6M14 11v6"/>
+                                    <path d="M9 6V4h6v2"/>
+                                </svg>
+                                Remove
+                            </button>
+                        </form>
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -218,84 +252,32 @@
             <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
                 <div class="card-title">Top 5 Energy Consumers</div>
                 <div class="card-subtitle">Today's energy consumption by device</div>
-                <div class="empty-state">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2"/>
-                        <line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/>
-                        <line x1="9" y1="3" x2="9" y2="21"/>
-                    </svg>
-                    <p>No devices added yet. Add some devices to see your consumption.</p>
-                </div>
+                @if($devices->isEmpty())
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/>
+                            <line x1="9" y1="3" x2="9" y2="21"/>
+                        </svg>
+                        <p>No devices added yet. Add some devices to see your consumption.</p>
+                    </div>
+                @else
+                    <div class="list-block" style="margin-top:1rem;">
+                        @foreach($devices->sortByDesc('daily_energy_kwh')->take(5) as $device)
+                            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 0;border-bottom:1px solid var(--border);">
+                                <span>{{ $device->name }}</span>
+                                <span>{{ number_format($device->daily_energy_kwh, 2) }} kWh</span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
 
         <div class="card chart-card">
             <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
                 <div class="card-title">Energy by Category</div>
-                <div class="card-subtitle">Consumption breakdown across device categories</div>
-                <div class="empty-state">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="20" x2="18" y2="10"/>
-                        <line x1="12" y1="20" x2="12" y2="4"/>
-                        <line x1="6"  y1="20" x2="6"  y2="14"/>
-                        <line x1="2"  y1="20" x2="22" y2="20"/>
-                    </svg>
-                    <p>No data available</p>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    {{-- 7-Day Trend + Donut --}}
-    <div class="chart-row" style="margin-bottom:1.5rem;">
-        @if($hasDevices)
-        <div class="card chart-card" style="min-height:280px;">
-            <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
-                <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.75rem;">
-                    <div>
-                        <div class="card-title">7-Day Energy Trend</div>
-                        <div class="card-subtitle">Daily consumption per device (kWh)</div>
-                    </div>
-                    <div class="chart-legend">
-                        <span class="legend-item"><span class="legend-dot" style="background:#4A7CF6;"></span>AC</span>
-                        <span class="legend-item"><span class="legend-dot" style="background:#10b981;"></span>Heater</span>
-                        <span class="legend-item"><span class="legend-dot" style="background:#8b5cf6;"></span>Fridge</span>
-                        <span class="legend-item"><span class="legend-dot" style="background:#f59e0b;"></span>Washer</span>
-                        <span class="legend-item"><span class="legend-dot" style="background:#f87171;"></span>TV</span>
-                    </div>
-                </div>
-                <div style="flex:1;position:relative;min-height:200px;">
-                    <canvas id="energyLineChart"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="card chart-card" style="min-height:280px;">
-            <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
-                <div class="card-title">Energy Distribution</div>
-                <div class="card-subtitle">Share by device this week</div>
-                <div style="flex:1;position:relative;min-height:200px;">
-                    <canvas id="energyDonutChart"></canvas>
-                </div>
-            </div>
-        </div>
-        @else
-        <div class="card chart-card">
-            <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
-                <div class="card-title">7-Day Energy Trend</div>
-                <div class="card-subtitle">Daily consumption per device (kWh)</div>
-                <div class="empty-state">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                    </svg>
-                    <p>No devices added yet. Add some devices to see your trend.</p>
-                </div>
-            </div>
-        </div>
-        <div class="card chart-card">
-            <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
-                <div class="card-title">Energy Distribution</div>
-                <div class="card-subtitle">Share by device this week</div>
+                <div class="card-subtitle">Distribution across device categories</div>
                 <div class="empty-state">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
@@ -490,145 +472,5 @@
         </div>
     </div>
 
-
-@endsection
-
-@section('scripts')
-(function () {
-    function initCharts() {
-        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        var gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
-        var tickColor = isDark ? '#64748b' : '#94a3b8';
-
-        // -- 7-Day Line Chart --
-        var lineEl = document.getElementById('energyLineChart');
-        if (lineEl) {
-            new Chart(lineEl, {
-                type: 'line',
-                data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                    datasets: [
-                        { label:'Air Conditioner', data:[1.8,2.1,2.3,2.0,2.5,2.2,2.4], borderColor:'#4A7CF6', backgroundColor:'rgba(74,124,246,0.08)', fill:true,  tension:0.4, pointRadius:3, borderWidth:2 },
-                        { label:'Water Heater',    data:[1.6,1.9,1.7,1.8,2.0,1.7,1.8], borderColor:'#10b981', backgroundColor:'transparent',              fill:false, tension:0.4, pointRadius:3, borderWidth:2 },
-                        { label:'Refrigerator',    data:[0.9,0.95,0.92,0.98,0.96,0.94,0.96], borderColor:'#8b5cf6', backgroundColor:'transparent',         fill:false, tension:0.4, pointRadius:3, borderWidth:2 },
-                        { label:'Washing Machine', data:[0.5,0.8,0.6,0.9,0.7,0.75,0.75], borderColor:'#f59e0b', backgroundColor:'transparent',            fill:false, tension:0.4, pointRadius:3, borderWidth:2 },
-                        { label:'Smart TV',        data:[0.4,0.35,0.3,0.45,0.25,0.3,0.3], borderColor:'#f87171', backgroundColor:'transparent',           fill:false, tension:0.4, pointRadius:3, borderWidth:2 }
-                    ]
-                },
-                options: {
-                    responsive:true, maintainAspectRatio:false,
-                    plugins: {
-                        legend: { display:false },
-                        tooltip: { mode:'index', intersect:false }
-                    },
-                    scales: {
-                        x: { grid:{ display:false }, ticks:{ color:tickColor, font:{ size:11 } } },
-                        y: { grid:{ color:gridColor }, beginAtZero:true, ticks:{ color:tickColor, font:{ size:11 }, callback: function(v){ return v+' kWh'; } } }
-                    }
-                }
-            });
-        }
-
-        // -- Donut Chart --
-        var donutEl = document.getElementById('energyDonutChart');
-        if (donutEl) {
-            new Chart(donutEl, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Air Conditioner','Water Heater','Refrigerator','Washing Machine','Smart TV'],
-                    datasets: [{ data:[39,29,15,12,5], backgroundColor:['#4A7CF6','#10b981','#8b5cf6','#f59e0b','#f87171'], borderWidth:0, hoverOffset:8 }]
-                },
-                options: {
-                    responsive:true, maintainAspectRatio:false, cutout:'66%',
-                    plugins: {
-                        legend: { position:'bottom', labels:{ color:tickColor, font:{ size:11 }, padding:12, boxWidth:10, usePointStyle:true } }
-                    }
-                }
-            });
-        }
-
-        // -- Sparklines --
-        document.querySelectorAll('.spark-canvas').forEach(function(canvas) {
-            var vals  = canvas.getAttribute('data-vals').split(',').map(Number);
-            var color = canvas.getAttribute('data-color');
-            var ctx2  = canvas.getContext('2d');
-            var w = canvas.width, h = canvas.height;
-            var min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
-            var range = max - min || 1;
-            ctx2.clearRect(0,0,w,h);
-            ctx2.beginPath();
-            vals.forEach(function(v,i) {
-                var x = (i / (vals.length-1)) * (w-2) + 1;
-                var y = h - ((v - min) / range) * (h-6) - 3;
-                if (i === 0) { ctx2.moveTo(x,y); } else { ctx2.lineTo(x,y); }
-            });
-            ctx2.strokeStyle = color;
-            ctx2.lineWidth   = 1.8;
-            ctx2.lineJoin    = 'round';
-            ctx2.stroke();
-        });
-    }
-
-    if (typeof Chart === 'undefined') {
-        var s = document.createElement('script');
-        s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
-        s.onload = initCharts;
-        document.head.appendChild(s);
-    } else {
-        initCharts();
-    }
-})();
-
-    // -- Welcome banner toggle --
-    (function(){
-        var banner   = document.getElementById('welcomeBanner');
-        var btn      = document.getElementById('welcomeToggle');
-        var chevron  = document.getElementById('bannerChevron');
-        var body     = document.getElementById('welcomeBody');
-        var collapsed = localStorage.getItem('vw-banner-collapsed') === '1';
-
-        function collapse() {
-            if (!body) return;
-            body.style.maxHeight = body.scrollHeight + 'px';
-            requestAnimationFrame(function(){
-                body.style.transition = 'max-height 0.35s ease, opacity 0.3s ease';
-                body.style.maxHeight  = '0';
-                body.style.opacity    = '0';
-                body.style.overflow   = 'hidden';
-            });
-            if (chevron) chevron.style.transform = 'rotate(180deg)';
-            if (btn) btn.setAttribute('aria-expanded', 'false');
-            localStorage.setItem('vw-banner-collapsed', '1');
-        }
-
-        function expand() {
-            if (!body) return;
-            body.style.transition = 'max-height 0.35s ease, opacity 0.3s ease';
-            body.style.maxHeight  = body.scrollHeight + 300 + 'px';
-            body.style.opacity    = '1';
-            if (chevron) chevron.style.transform = 'rotate(0deg)';
-            if (btn) btn.setAttribute('aria-expanded', 'true');
-            localStorage.setItem('vw-banner-collapsed', '0');
-            setTimeout(function(){ body.style.maxHeight = 'none'; }, 380);
-        }
-
-        if (body && collapsed) {
-            body.style.maxHeight = '0';
-            body.style.opacity   = '0';
-            body.style.overflow  = 'hidden';
-            if (chevron) chevron.style.transform = 'rotate(180deg)';
-            if (btn) btn.setAttribute('aria-expanded', 'false');
-        }
-
-        if (btn) {
-            btn.addEventListener('click', function(){
-                if (localStorage.getItem('vw-banner-collapsed') === '1') {
-                    expand();
-                } else {
-                    collapse();
-                }
-            });
-        }
-    })();
 @endsection
 
