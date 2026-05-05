@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Device;
+use App\Models\MasterDevice;
 use Illuminate\Http\Request;
 
 class DeviceController extends Controller
@@ -15,27 +16,43 @@ class DeviceController extends Controller
 
     public function create()
     {
-        return view('devices.create');
+        $masterDevices = MasterDevice::orderBy('name')->get();
+        return view('devices.create', compact('masterDevices'));
     }
 
-    public function store(Request $request)
+        public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|max:255',
-            'wattage' => 'required|integer|min:1',
-            'category' => 'required|max:255'
-        ]);
+        if ($request->master_device_id) {
+            // User picked from master device library
+            $master = MasterDevice::findOrFail($request->master_device_id);
 
-        Device::create([
-            'user_id' => auth()->id(),
-            'name' => $request->name,
-            'wattage' => $request->wattage,
-            'category' => $request->category
-        ]);
+            Device::create([
+                'user_id' => auth()->id(),
+                'master_device_id' => $master->id,
+                'name' => $request->name ?: $master->name,
+                'wattage' => $master->wattage,
+                'category' => $master->category,
+            ]);
+        } else {
+            // Manual entry
+            $request->validate([
+                'name' => 'required|max:255',
+                'wattage' => 'required|integer|min:1',
+                'category' => 'required|max:255',
+            ]);
+
+            Device::create([
+                'user_id' => auth()->id(),
+                'name' => $request->name,
+                'wattage' => $request->wattage,
+                'category' => $request->category,
+            ]);
+        }
 
         return redirect()->route('devices.index')
             ->with('success', 'Device added successfully.');
     }
+
 
     public function show(Device $device)
     {
