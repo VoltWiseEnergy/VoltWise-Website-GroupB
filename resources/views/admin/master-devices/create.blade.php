@@ -103,14 +103,14 @@
                     <label for="category">Category <span>*</span></label>
                     <select name="category" id="category" class="fs" required>
                         <option value="">Select a category...</option>
-                        <option value="Lighting" {{ old('category') == 'Lighting' ? 'selected' : '' }}>💡 Lighting</option>
-                        <option value="Cooling" {{ old('category') == 'Cooling' ? 'selected' : '' }}>❄️ Cooling</option>
-                        <option value="Heating" {{ old('category') == 'Heating' ? 'selected' : '' }}>🔥 Heating</option>
-                        <option value="Kitchen" {{ old('category') == 'Kitchen' ? 'selected' : '' }}>🍳 Kitchen</option>
-                        <option value="Entertainment" {{ old('category') == 'Entertainment' ? 'selected' : '' }}>📺 Entertainment</option>
-                        <option value="Laundry" {{ old('category') == 'Laundry' ? 'selected' : '' }}>👕 Laundry</option>
-                        <option value="Office" {{ old('category') == 'Office' ? 'selected' : '' }}>💻 Office</option>
-                        <option value="Other" {{ old('category') == 'Other' ? 'selected' : '' }}>📦 Other</option>
+                        <option value="Lighting" {{ old('category') == 'Lighting' ? 'selected' : '' }}> Lighting</option>
+                        <option value="Cooling" {{ old('category') == 'Cooling' ? 'selected' : '' }}> Cooling</option>
+                        <option value="Heating" {{ old('category') == 'Heating' ? 'selected' : '' }}> Heating</option>
+                        <option value="Kitchen" {{ old('category') == 'Kitchen' ? 'selected' : '' }}> Kitchen</option>
+                        <option value="Entertainment" {{ old('category') == 'Entertainment' ? 'selected' : '' }}> Entertainment</option>
+                        <option value="Laundry" {{ old('category') == 'Laundry' ? 'selected' : '' }}> Laundry</option>
+                        <option value="Office" {{ old('category') == 'Office' ? 'selected' : '' }}> Office</option>
+                        <option value="Other" {{ old('category') == 'Other' ? 'selected' : '' }}> Other</option>
                     </select>
                     @error('category') <div class="fe">⚠ {{ $message }}</div> @enderror
                 </div>

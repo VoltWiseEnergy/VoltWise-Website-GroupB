@@ -26,6 +26,24 @@
         <form action="{{ route('devices.store') }}" method="POST">
             @csrf
 
+            {{-- Pick from Master Device Library --}}
+            @if($masterDevices->count() > 0)
+                <div class="template-box">
+                    <div class="template-label">Quick Add from Device Library</div>
+                    <select name="master_device_id" class="form-input">
+                        <option value="">— Select a device template or type manually below —</option>
+                        @foreach($masterDevices as $md)
+                            <option value="{{ $md->id }}" {{ old('master_device_id') == $md->id ? 'selected' : '' }}>
+                                {{ $md->name }} ({{ number_format($md->wattage, 0) }}W — {{ $md->category }})
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="template-hint">Pick a template to use its wattage and category, or skip and type manually</div>
+                </div>
+
+                <div class="divider-or">or fill in manually</div>
+            @endif
+
             <div class="form-group">
                 <label class="form-label">Device Name</label>
                 <input 
@@ -137,6 +155,48 @@
 .error-box ul {
     margin: 0;
     padding-left: 20px;
+}
+
+.template-box {
+    background: var(--bg-banner);
+    border: 1px solid var(--bg-banner-border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.template-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+
+.template-hint {
+    font-size: 11px;
+    color: var(--text-faint);
+    margin-top: 6px;
+}
+
+.divider-or {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 16px 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.divider-or::before,
+.divider-or::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
 }
 </style>
 @endsection
