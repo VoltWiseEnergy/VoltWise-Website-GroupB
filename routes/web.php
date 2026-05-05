@@ -21,15 +21,12 @@ Route::get('/', function () {
 |--------------------------------------------------------------------------
 */
  
-// Login
 Route::get('/login',  [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
  
-// Register
 Route::get('/register',  [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
  
-// Logout
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
  
 /*
@@ -51,8 +48,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/budget/clear',  [BudgetController::class, 'clear'])->name('budget.clear');
  
     // Usage Tracking Routes
+    Route::get('/usage/tracker',  [UsageController::class, 'tracker'])->name('usage.tracker');
     Route::post('/usage/default', [UsageController::class, 'setDefault'])->name('usage.setDefault');
-    Route::post('/usage/override', [UsageController::class, 'override'])->name('usage.override');
+    Route::post('/usage/override',[UsageController::class, 'override'])->name('usage.override');
     Route::get('/usage/history',  [UsageController::class, 'history'])->name('usage.history');
     Route::get('/usage/today',    [UsageController::class, 'today'])->name('usage.today');
 
