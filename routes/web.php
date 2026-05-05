@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\TariffController;
 
 // Main Page
 Route::get('/', function () {
@@ -23,7 +24,17 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Protected Routes
 Route::middleware('auth')->group(function () {
+
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+
+    // ADMIN TARIFF MANAGEMENT
+    Route::prefix('admin/tariff')->group(function () {
+        Route::get('/', [TariffController::class, 'index']);
+        Route::post('/set', [TariffController::class, 'store']);
+        Route::put('/update/{id}', [TariffController::class, 'update']);
+        Route::get('/history', [TariffController::class, 'history']);
+    });
+
 });
