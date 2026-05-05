@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Device;
+use App\Models\MasterDevice;
 use Illuminate\Http\Request;
 
 class DeviceController extends Controller
@@ -15,10 +16,11 @@ class DeviceController extends Controller
 
     public function create()
     {
-        return view('devices.create');
+        $masterDevices = MasterDevice::orderBy('name')->get();
+        return view('devices.create', compact('masterDevices'));
     }
 
-    public function store(Request $request)
+        public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|max:255',
@@ -42,6 +44,7 @@ class DeviceController extends Controller
         return redirect()->route('devices.index')
             ->with('success', 'Device added successfully.');
     }
+
 
     public function show(Device $device)
     {
