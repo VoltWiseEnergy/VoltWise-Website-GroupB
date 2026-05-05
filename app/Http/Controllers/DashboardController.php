@@ -34,15 +34,20 @@ class DashboardController extends Controller
                 // If no log exists for today, assume a default of 1 hour usage
                 $device->daily_energy_kwh = round(($device->wattage / 1000) * 1, 3);
             }
+
+            // Calculate tariff (cost) based on daily kWh × Rp 1444.7
+            $device->tariff = $device->daily_energy_kwh * 1444.7;
+
             return $device;
         });
 
         $todayEnergyKwh = $devices->sum('daily_energy_kwh');
+        $todayCost = $devices->sum('tariff'); // NEW: total cost across all devices
         $topConsumer = $devices->sortByDesc('daily_energy_kwh')->first();
         $energyByCategory = $devices->groupBy('category')->map(fn ($group) => $group->sum('daily_energy_kwh'));
 
-        // Rough estimation of monthly cost: Today's cost * 30 days. Cost per kWh = 1444 Rp.
-        $monthlyCost = $todayEnergyKwh * 30 * 1444;
+        // Monthly cost estimation: today's total cost × 30 days
+        $monthlyCost = $todayCost * 30;
 
         return view('dashboard', compact(
             'devices',
@@ -50,6 +55,7 @@ class DashboardController extends Controller
             'todayEnergyKwh',
             'topConsumer',
             'energyByCategory',
+            'todayCost',
             'monthlyCost'
         ));
     }

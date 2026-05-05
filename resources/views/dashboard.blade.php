@@ -199,8 +199,8 @@
                         </svg>
                     </div>
                 </div>
-                <div class="stat-value">Rp.0</div>
-                <div class="stat-detail">Rp.0/month</div>
+                <div class="stat-value">Rp.{{ number_format($todayCost, 0, ',', '.') }}</div>
+                <div class="stat-detail">Rp.{{ number_format($monthlyCost, 0, ',', '.') }}/month</div>
             </div>
         </div>
 

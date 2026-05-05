@@ -26,11 +26,17 @@ class DeviceController extends Controller
             'category' => 'required|max:255'
         ]);
 
+        // Calculate daily energy (default 1 hour usage) and tariff
+        $dailyEnergyKwh = round(($request->wattage / 1000) * 1, 3);
+        $tariff = $dailyEnergyKwh * 1444.7;
+
         Device::create([
             'user_id' => auth()->id(),
             'name' => $request->name,
             'wattage' => $request->wattage,
-            'category' => $request->category
+            'category' => $request->category,
+            'daily_energy_kwh' => $dailyEnergyKwh,
+            'tariff' => $tariff
         ]);
 
         return redirect()->route('devices.index')
@@ -63,10 +69,16 @@ class DeviceController extends Controller
             'category' => 'required|max:255'
         ]);
 
+        // Recalculate daily energy and tariff on update
+        $dailyEnergyKwh = round(($request->wattage / 1000) * 1, 3);
+        $tariff = $dailyEnergyKwh * 1444.7;
+
         $device->update([
             'name' => $request->name,
             'wattage' => $request->wattage,
-            'category' => $request->category
+            'category' => $request->category,
+            'daily_energy_kwh' => $dailyEnergyKwh,
+            'tariff' => $tariff
         ]);
 
         return redirect()->route('devices.index')
