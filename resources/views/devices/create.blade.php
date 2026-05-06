@@ -30,7 +30,7 @@
             @if($masterDevices->count() > 0)
                 <div class="template-box">
                     <div class="template-label">Quick Add from Device Library</div>
-                    <select name="master_device_id" class="form-input">
+                    <select name="master_device_id" class="form-input" onchange="this.form.submit()">
                         <option value="">— Select a device template or type manually below —</option>
                         @foreach($masterDevices as $md)
                             <option value="{{ $md->id }}" {{ old('master_device_id') == $md->id ? 'selected' : '' }}>
