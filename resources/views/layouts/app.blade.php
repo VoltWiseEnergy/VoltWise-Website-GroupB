@@ -12,7 +12,7 @@
 
     <style>
         /* =============================================
-        #RESET & THEME VARIABLES
+           #RESET & THEME VARIABLES
         ============================================= */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -21,7 +21,7 @@
             --bg-sidebar:       #ffffff;
             --bg-topbar:        #ffffff;
             --bg-card:          #ffffff;
-            --bg-tip:           #f8fafc;
+            --bg-tip:            #f8fafc;
             --bg-feature:       #ffffff;
             --bg-banner:        linear-gradient(135deg,#eef3ff 0%,#e8f0fe 50%,#f0f7ff 100%);
             --bg-banner-border: #bfdbfe;
@@ -63,7 +63,12 @@
             --logout-hover-color: #ef4444;
             --flash-bg: #f0fdf4; --flash-border: #bbf7d0; --flash-color: #166534;
 
-            /* Budget */
+            /* Avatar & Profile */
+            --avatar-menu-bg: #ffffff;
+            --avatar-menu-border: #e2e8f0;
+            --avatar-menu-color: #0f172a;
+
+            /* Budget Tracker */
             --budget-track-bg:      #e2e8f0;
             --budget-bar-safe:      #10b981;
             --budget-bar-warn:      #f59e0b;
@@ -75,7 +80,7 @@
             --budget-badge-warn-bg: #fef3c7;
             --budget-badge-danger-bg: #fee2e2;
             --modal-overlay:        rgba(15,23,42,0.45);
-            --modal-bg:             #ffffff;
+            --modal-bg:              #ffffff;
         }
 
         [data-theme="dark"] {
@@ -83,7 +88,7 @@
             --bg-sidebar:       #111827;
             --bg-topbar:        #111827;
             --bg-card:          #1a2235;
-            --bg-tip:           #1e2840;
+            --bg-tip:            #1e2840;
             --bg-feature:       #1e2840;
             --bg-banner:        linear-gradient(135deg,#0f1d3a 0%,#0e1a36 60%,#0f1f3d 100%);
             --bg-banner-border: #1e3a5f;
@@ -125,7 +130,12 @@
             --logout-hover-color: #f87171;
             --flash-bg: rgba(16,185,129,0.1); --flash-border: rgba(16,185,129,0.2); --flash-color: #6ee7b7;
 
-            /* Budget */
+            /* Avatar & Profile */
+            --avatar-menu-bg: #1a2235;
+            --avatar-menu-border: rgba(255,255,255,0.07);
+            --avatar-menu-color: #f1f5f9;
+
+            /* Budget Tracker */
             --budget-track-bg:      rgba(255,255,255,0.08);
             --budget-bar-safe:      #10b981;
             --budget-bar-warn:      #f59e0b;
@@ -137,7 +147,7 @@
             --budget-badge-warn-bg: rgba(245,158,11,0.15);
             --budget-badge-danger-bg: rgba(239,68,68,0.15);
             --modal-overlay:        rgba(0,0,0,0.65);
-            --modal-bg:             #1a2235;
+            --modal-bg:              #1a2235;
         }
 
         /* =============================================
@@ -239,6 +249,38 @@
             font-size:0.8125rem; font-weight:700; color:var(--blue-600); cursor:pointer;
             transition:border-color 0.25s, background 0.25s;
         }
+
+        /* Avatar dropdown menu */
+        .avatar-menu {
+            position:absolute;
+            top:calc(100% + 10px);
+            right:0;
+            background:var(--avatar-menu-bg);
+            border:1px solid var(--avatar-menu-border);
+            border-radius:10px;
+            padding:0.5rem;
+            display:none;
+            z-index:999;
+            min-width:150px;
+            box-shadow:0 4px 20px rgba(0,0,0,0.12);
+            transition:background 0.25s, border-color 0.25s;
+        }
+        .avatar-menu.open { display:block; }
+        .avatar-menu a,
+        .avatar-menu button {
+            display:flex; align-items:center; gap:0.5rem;
+            width:100%; padding:0.5rem 0.75rem;
+            border-radius:6px; text-decoration:none;
+            font-size:0.8125rem; font-weight:500;
+            color:var(--avatar-menu-color);
+            background:none; border:none; cursor:pointer;
+            font-family:'Inter',sans-serif;
+            transition:background 0.15s, color 0.15s;
+            text-align:left;
+        }
+        .avatar-menu a:hover { background:var(--nav-hover-bg); }
+        .avatar-menu button:hover { background:var(--logout-hover-bg); color:var(--logout-hover-color); }
+        .avatar-menu-divider { height:1px; background:var(--border); margin:0.25rem 0; }
 
         /* PAGE CONTENT */
         .page-content { padding:1.75rem; flex:1; }
@@ -530,6 +572,7 @@
 </head>
 <body>
 
+{{-- Apply saved theme before paint to avoid flash --}}
 <script>
     (function(){
         const t = localStorage.getItem('voltwise-theme') || 'light';
@@ -541,7 +584,7 @@
 
     {{-- ===== SIDEBAR ===== --}}
     <aside class="sidebar">
-        <a href="{{ url('/dashboard') }}" class="sidebar-brand">
+        <a href="{{ auth()->user()->isAdmin() ? route('admin.dashboard') : url('/dashboard') }}" class="sidebar-brand">
             <div class="brand-bolt">
                 <svg viewBox="0 0 24 24"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
             </div>
@@ -549,36 +592,57 @@
         </a>
 
         <nav class="sidebar-nav" aria-label="Main">
-            <a href="{{ url('/dashboard') }}"
-               class="nav-item {{ request()->is('dashboard') ? 'active' : '' }}">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-                    <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
-                </svg>
-                Dashboard
-            </a>
-            <a href="#" class="nav-item {{ request()->is('devices*') ? 'active' : '' }}">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                </svg>
-                My Devices
-            </a>
-            <a href="#" class="nav-item {{ request()->is('tracker*') ? 'active' : '' }}">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                    <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
-                    <line x1="3" y1="10" x2="21" y2="10"/>
-                </svg>
-                Daily Tracker
-            </a>
-            <a href="#" class="nav-item {{ request()->is('analytics*') ? 'active' : '' }}">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="20" x2="18" y2="10"/>
-                    <line x1="12" y1="20" x2="12" y2="4"/>
-                    <line x1="6"  y1="20" x2="6"  y2="14"/>
-                </svg>
-                Analytics
-            </a>
+            @if(auth()->user()->isAdmin())
+                {{-- ========== ADMIN SIDEBAR ========== --}}
+                <a href="{{ route('admin.dashboard') }}"
+                   class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                    Dashboard
+                </a>
+                <a href="{{ route('admin.master-devices.index') }}"
+                   class="nav-item {{ request()->routeIs('admin.master-devices.*') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3"/>
+                    </svg>
+                    Master Devices
+                </a>
+            @else
+                {{-- ========== USER SIDEBAR (unchanged) ========== --}}
+                <a href="{{ url('/dashboard') }}"
+                   class="nav-item {{ request()->is('dashboard') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                    Dashboard
+                </a>
+                <a href="{{ route('devices.index') }}" 
+                   class="nav-item {{ request()->is('devices*') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                    </svg>
+                    My Devices
+                </a>
+                <a href="{{ route('usage.tracker') }}" class="nav-item {{ request()->routeIs('usage.*') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    Daily Tracker
+                </a>
+                <a href="#" class="nav-item {{ request()->is('analytics*') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"/>
+                        <line x1="12" y1="20" x2="12" y2="4"/>
+                        <line x1="6"  y1="20" x2="6"  y2="14"/>
+                    </svg>
+                    Analytics
+                </a>
+            @endif
         </nav>
 
         <div class="sidebar-footer">
@@ -595,6 +659,7 @@
         </div>
     </aside>
 
+
     {{-- ===== MAIN ===== --}}
     <div class="main-area">
 
@@ -606,17 +671,42 @@
                 </svg>
                 <svg class="theme-icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="5"/>
-                    <line x1="12" y1="1"  x2="12" y2="3"/>  <line x1="12" y1="21" x2="12" y2="23"/>
+                    <line x1="12" y1="1"  x2="12" y2="3"/>
+                    <line x1="12" y1="21" x2="12" y2="23"/>
                     <line x1="4.22" y1="4.22"   x2="5.64" y2="5.64"/>
                     <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                    <line x1="1" y1="12"  x2="3" y2="12"/>   <line x1="21" y1="12" x2="23" y2="12"/>
+                    <line x1="1" y1="12"  x2="3" y2="12"/>
+                    <line x1="21" y1="12" x2="23" y2="12"/>
                     <line x1="4.22" y1="19.78"  x2="5.64" y2="18.36"/>
                     <line x1="18.36" y1="5.64"  x2="19.78" y2="4.22"/>
                 </svg>
             </button>
             <div class="topbar-divider"></div>
-            <div class="topbar-avatar" title="{{ auth()->user()->name ?? '' }}">
-                {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
+            <div style="position:relative;">
+                <div class="topbar-avatar" id="avatar-btn" title="{{ auth()->user()->name ?? 'User' }}">
+                    {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
+                </div>
+                <div id="avatar-menu" class="avatar-menu">
+                    <a href="{{ route('profile') }}">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        Profile
+                    </a>
+                    <div class="avatar-menu-divider"></div>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                                <polyline points="16 17 21 12 16 7"/>
+                                <line x1="21" y1="12" x2="9" y2="12"/>
+                            </svg>
+                            Sign Out
+                        </button>
+                    </form>
+                </div>
             </div>
         </header>
 
@@ -625,7 +715,8 @@
             @if (session('success'))
                 <div class="flash" role="status">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
                     </svg>
                     {{ session('success') }}
                 </div>
@@ -633,19 +724,36 @@
 
             @yield('content')
         </main>
-    </div>
-</div>
+
+    </div>{{-- /.main-area --}}
+</div>{{-- /.app-shell --}}
 
 <script>
+    // Avatar dropdown
+    const avatarBtn = document.getElementById('avatar-btn');
+    const avatarMenu = document.getElementById('avatar-menu');
+
+    avatarBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        avatarMenu.classList.toggle('open');
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!avatarBtn.contains(e.target) && !avatarMenu.contains(e.target)) {
+            avatarMenu.classList.remove('open');
+        }
+    });
+
     // Dark mode toggle
-    document.getElementById('theme-toggle').addEventListener('click', function () {
+    document.getElementById('theme-toggle').addEventListener('click', function() {
         const html = document.documentElement;
         const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         html.setAttribute('data-theme', next);
         localStorage.setItem('voltwise-theme', next);
     });
-
-    @yield('scripts')
 </script>
+
+@yield('scripts')
+
 </body>
 </html>
