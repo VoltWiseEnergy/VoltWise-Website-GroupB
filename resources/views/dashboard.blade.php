@@ -6,11 +6,15 @@
 @php
     /* ---- Budget calculations ---- */
     $budget      = auth()->user()->monthly_budget;         // null = not set
-    $monthlyCost = $monthlyCost ?? 0;
+    $monthlyCost = auth()->user()->devices()->sum('monthly_cost') ?? 0;                                    
     $pct         = ($budget && $budget > 0)
                     ? min(round(($monthlyCost / $budget) * 100, 1), 100)
                     : 0;
-    $fillClass   = $pct >= 90 ? 'danger' : ($pct >= 70 ? 'warn' : '');
+    $fillClass = ($pct <= 0)
+        ? 'danger'
+        : ($pct >= 90
+            ? 'danger'
+            : ($pct >= 75 ? 'warn' : 'safe'));
     $budgetFmt   = $budget ? 'Rp ' . number_format($budget, 0, ',', '.') : null;
     $usedFmt     = 'Rp ' . number_format($monthlyCost, 0, ',', '.');
 @endphp
@@ -278,7 +282,7 @@
                     @else
                         <div class="budget-no-set">No monthly budget set yet.</div>
                         <div class="budget-track">
-                            <div class="budget-fill" style="width:0%"></div>
+                            <div id="budget-fill-bar" class="budget-fill {{ $fillClass }}" style="width:0%"></div>
                         </div>
                         <div class="budget-meta">
                             <span class="budget-pct-label">Set a budget to start tracking your usage</span>
@@ -345,7 +349,6 @@
                 @endif
             </div>
         </div>
-
         <div class="card chart-card">
             <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
                 <div class="card-title">Energy by Category</div>
@@ -368,60 +371,6 @@
                         @endforeach
                     </div>
                 @endif
-            </div>
-        </div>
-    </div>
-
-    {{-- 7-Day Trend + Donut --}}
-    <div class="chart-row" style="margin-bottom:1.5rem;">
-        @if($devices->isNotEmpty())
-        <div class="card chart-card" style="min-height:280px;">
-            <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
-                <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.75rem;">
-                    <div>
-                        <div class="card-title">7-Day Energy Trend</div>
-                        <div class="card-subtitle">Daily consumption per device (kWh)</div>
-                    </div>
-                    <div class="chart-legend" id="trendLegend"></div>
-                </div>
-                <div style="flex:1;position:relative;min-height:200px;">
-                    <canvas id="energyLineChart"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="card chart-card" style="min-height:280px;">
-            <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
-                <div class="card-title">Energy Distribution</div>
-                <div class="card-subtitle">Share by device this week</div>
-                <div style="flex:1;position:relative;min-height:200px;">
-                    <canvas id="energyDonutChart"></canvas>
-                </div>
-            </div>
-        </div>
-        @else
-        <div class="card chart-card">
-            <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
-                <div class="card-title">7-Day Energy Trend</div>
-                <div class="card-subtitle">Daily consumption per device (kWh)</div>
-                <div class="empty-state">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                    </svg>
-                    <p>No devices added yet. Add some devices to see your trend.</p>
-                </div>
-            </div>
-        </div>
-        <div class="card chart-card">
-            <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
-                <div class="card-title">Energy Distribution</div>
-                <div class="card-subtitle">Share by device this week</div>
-                <div class="empty-state">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
-                        <path d="M22 12A10 10 0 0 0 12 2v10z"/>
-                    </svg>
-                    <p>No data available</p>
-                </div>
             </div>
         </div>
         @endif
