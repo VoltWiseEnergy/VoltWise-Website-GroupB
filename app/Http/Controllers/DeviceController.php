@@ -20,31 +20,39 @@ class DeviceController extends Controller
         return view('devices.create', compact('masterDevices'));
     }
 
-        public function store(Request $request)
+    public function store(Request $request)
     {
+        // Kalau pilih dari master device, auto-fill name/wattage/category
+        if ($request->filled('master_device_id')) {
+            $master = MasterDevice::findOrFail($request->master_device_id);
+            $request->merge([
+                'name'     => $request->name     ?: $master->name,
+                'wattage'  => $request->wattage  ?: $master->wattage,
+                'category' => $request->category ?: $master->category,
+            ]);
+        }
+
         $request->validate([
-            'name' => 'required|max:255',
-            'wattage' => 'required|integer|min:1',
+            'name'     => 'required|max:255',
+            'wattage'  => 'required|numeric|min:1',
             'category' => 'required|max:255'
         ]);
 
-        // Calculate daily energy (default 1 hour usage) and tariff
         $dailyEnergyKwh = round(($request->wattage / 1000) * 1, 3);
         $tariff = $dailyEnergyKwh * 1444.7;
 
         Device::create([
-            'user_id' => auth()->id(),
-            'name' => $request->name,
-            'wattage' => $request->wattage,
-            'category' => $request->category,
+            'user_id'          => auth()->id(),
+            'name'             => $request->name,
+            'wattage'          => $request->wattage,
+            'category'         => $request->category,
             'daily_energy_kwh' => $dailyEnergyKwh,
-            'tariff' => $tariff
+            'tariff'           => $tariff
         ]);
 
         return redirect()->route('devices.index')
             ->with('success', 'Device added successfully.');
     }
-
 
     public function show(Device $device)
     {
@@ -67,21 +75,20 @@ class DeviceController extends Controller
         }
 
         $request->validate([
-            'name' => 'required|max:255',
-            'wattage' => 'required|integer|min:1',
+            'name'     => 'required|max:255',
+            'wattage'  => 'required|integer|min:1',
             'category' => 'required|max:255'
         ]);
 
-        // Recalculate daily energy and tariff on update
         $dailyEnergyKwh = round(($request->wattage / 1000) * 1, 3);
         $tariff = $dailyEnergyKwh * 1444.7;
 
         $device->update([
-            'name' => $request->name,
-            'wattage' => $request->wattage,
-            'category' => $request->category,
+            'name'             => $request->name,
+            'wattage'          => $request->wattage,
+            'category'         => $request->category,
             'daily_energy_kwh' => $dailyEnergyKwh,
-            'tariff' => $tariff
+            'tariff'           => $tariff
         ]);
 
         return redirect()->route('devices.index')
