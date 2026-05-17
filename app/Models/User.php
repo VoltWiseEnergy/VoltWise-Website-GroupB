@@ -34,8 +34,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'phone',    
-        'avatar',   
+        'phone',
+        'avatar',
+        'monthly_budget',
     ];
 
         public function isAdmin(): bool
@@ -43,4 +44,8 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
     
+        public function devices()
+    {
+        return $this->hasMany(\App\Models\Device::class);
+    }
 }

@@ -13,7 +13,7 @@ class BudgetController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'monthly_budget' => ['required', 'numeric', 'min:0', 'max:999999999'],
+            'monthly_budget' => ['required', 'numeric', 'min:1', 'max:999999999'],
         ], [
             'monthly_budget.required' => 'Please enter a budget amount.',
             'monthly_budget.numeric'  => 'Budget must be a number.',

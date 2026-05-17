@@ -13,7 +13,7 @@ class MasterDeviceController extends Controller
      */
      public function index()
     {
-        $masterDevices = MasterDevice::orderBy('name')->get();
+        $masterDevices = MasterDevice::latest()->get();
         // Stats for summary cards
         $totalDevices = $masterDevices->count();
         $totalCategories = $masterDevices->pluck('category')->unique()->count();
