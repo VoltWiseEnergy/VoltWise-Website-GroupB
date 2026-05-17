@@ -1,9 +1,10 @@
 <?php
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
+
 class ProfileController extends Controller
 {
     public function show()
@@ -17,14 +18,12 @@ class ProfileController extends Controller
 
         $request->validate([
             'name'             => ['required', 'string', 'max:255'],
-            'phone'            => ['nullable', 'string', 'max:20'],
             'avatar'           => ['nullable', 'image', 'max:2048'],
             'current_password' => ['nullable', 'required_with:password'],
             'password'         => ['nullable', 'min:8', 'confirmed'],
         ]);
 
-        $user->name  = $request->name;
-        $user->phone = $request->phone;
+        $user->name = $request->name;
 
         if ($request->hasFile('avatar')) {
             $path = $request->file('avatar')->store('avatars', 'public');
