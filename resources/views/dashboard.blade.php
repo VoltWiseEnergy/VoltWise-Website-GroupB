@@ -78,6 +78,27 @@
     transition:background 0.15s, color 0.15s;
 }
 .welcome-close:hover { background:var(--icon-btn-hover); color:var(--text-primary); }
+
+/* ── Points Card ── */
+.points-card { margin-bottom:1.5rem; }
+.points-card-inner { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:1.25rem; }
+.points-left { flex:1; min-width:0; }
+.points-total { font-size:2rem; font-weight:800; letter-spacing:-0.04em; color:var(--text-primary); line-height:1; margin-bottom:0.25rem; }
+.points-total span { font-size:1rem; font-weight:500; color:var(--text-muted); margin-left:4px; }
+.level-badge { display:inline-flex; align-items:center; gap:0.4rem; padding:0.25rem 0.7rem; border-radius:99px; font-size:0.78rem; font-weight:700; margin-bottom:0.75rem; }
+.level-track { width:100%; height:8px; background:var(--budget-track-bg); border-radius:99px; overflow:hidden; margin-bottom:0.4rem; }
+.level-fill { height:100%; border-radius:99px; transition:width 0.9s cubic-bezier(.4,0,.2,1); }
+.level-meta { font-size:0.72rem; color:var(--text-faint); }
+.points-right { display:flex; flex-direction:column; align-items:flex-end; gap:0.5rem; flex-shrink:0; }
+.awards-list { display:flex; flex-direction:column; gap:0.35rem; }
+.award-chip { display:inline-flex; align-items:center; gap:0.4rem; padding:0.22rem 0.65rem; border-radius:99px; font-size:0.72rem; font-weight:600; background:rgba(74,124,246,0.1); color:var(--blue-600); border:1px solid rgba(74,124,246,0.2); }
+.award-chip.green { background:rgba(16,185,129,0.1); color:#10b981; border-color:rgba(16,185,129,0.2); }
+.award-chip.gold  { background:rgba(245,158,11,0.1); color:#d97706; border-color:rgba(245,158,11,0.2); }
+[data-theme="dark"] .award-chip { color:#93b4fb; }
+[data-theme="dark"] .award-chip.green { color:#6ee7b7; }
+[data-theme="dark"] .award-chip.gold  { color:#fde047; }
+.points-link { font-size:0.78rem; font-weight:600; color:var(--blue-600); text-decoration:none; display:inline-flex; align-items:center; gap:3px; }
+.points-link:hover { text-decoration:underline; }
 </style>
 @endsection
 
@@ -322,7 +343,82 @@
         </div>
     </div>
 
+    {{-- Points & Achievements Card --}}
+    @php
+        $levelColor = match($level['current']['name']) {
+            'Silver'   => '#94a3b8',
+            'Gold'     => '#f59e0b',
+            'Platinum' => '#8b5cf6',
+            default    => '#cd7f32',
+        };
+        $awardLabels = [
+            'consistent_logging' => ['label' => '+5 pts — Logged usage today',   'cls' => 'green'],
+            'under_budget'       => ['label' => '+50 pts — Staying under budget', 'cls' => 'gold'],
+            'low_usage'          => ['label' => '+10 pts — Low-usage day',        'cls' => 'green'],
+            'very_low_usage'     => ['label' => '+20 pts — Very low usage day',   'cls' => 'gold'],
+        ];
+    @endphp
+    <div class="card points-card" id="points-card">
+        <div class="card-body">
+            <div class="points-card-inner">
+                <div class="points-left">
+                    <div class="stat-header" style="margin-bottom:0.6rem">
+                        <span class="stat-label">
+                            <svg style="width:13px;height:13px;display:inline;vertical-align:-1px;margin-right:4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                            Points &amp; Level
+                        </span>
+                        <div class="stat-icon icon-purple">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="points-total" id="points-total-display">{{ number_format($totalPoints) }}<span>pts</span></div>
+
+                    <span class="level-badge" style="background:{{ $levelColor }}22; color:{{ $levelColor }}; border:1px solid {{ $levelColor }}44;">
+                        {{ $level['current']['emoji'] }} {{ $level['current']['name'] }}
+                    </span>
+
+                    <div class="level-track" role="progressbar" aria-valuenow="{{ $level['progress'] }}" aria-valuemin="0" aria-valuemax="100">
+                        <div class="level-fill" id="level-fill-bar" style="width:{{ $level['progress'] }}%; background:{{ $levelColor }};"></div>
+                    </div>
+                    <div class="level-meta">
+                        @if($level['next'])
+                            {{ $level['points_to_next'] }} pts to {{ $level['next']['emoji'] }} {{ $level['next']['name'] }}
+                        @else
+                            🏆 Maximum level reached!
+                        @endif
+                    </div>
+                </div>
+
+                <div class="points-right">
+                    @if(count($todayAwards) > 0)
+                        <div style="font-size:0.72rem;font-weight:600;color:var(--text-muted);margin-bottom:0.25rem;text-align:right;">Today's Achievements</div>
+                        <div class="awards-list">
+                            @foreach($todayAwards as $event => $pts)
+                                @php $info = $awardLabels[$event] ?? ['label' => "+{$pts} pts", 'cls' => '']; @endphp
+                                <span class="award-chip {{ $info['cls'] }}">
+                                    ✓ {{ $info['label'] }}
+                                </span>
+                            @endforeach
+                        </div>
+                    @else
+                        <div style="font-size:0.78rem;color:var(--text-faint);text-align:right;">Log your usage today<br>to start earning points!</div>
+                    @endif
+                    <a href="{{ route('points.index') }}" class="points-link" style="margin-top:0.5rem;">
+                        View full history
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- Chart Cards --}}
+
     <div class="chart-row">
         <div class="card chart-card">
             <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
@@ -373,7 +469,6 @@
                 @endif
             </div>
         </div>
-        @endif
     </div>
 
     {{-- All Devices Table --}}
