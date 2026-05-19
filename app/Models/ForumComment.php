@@ -4,13 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
-use App\Models\ForumComment;
+use App\Models\ForumPost;
 
-class ForumPost extends Model
+class ForumComment extends Model
 {
     protected $fillable = [
+        'forum_post_id',
         'user_id',
-        'title',
         'content',
         'votes'
     ];
@@ -20,8 +20,8 @@ class ForumPost extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function comments()
+    public function post()
     {
-        return $this->hasMany(ForumComment::class, 'forum_post_id');
+        return $this->belongsTo(ForumPost::class, 'forum_post_id');
     }
 }

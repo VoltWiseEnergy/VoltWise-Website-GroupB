@@ -59,6 +59,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/forum', [ForumPostController::class, 'index'])->name('forum.index');
     Route::get('/forum/create', [ForumPostController::class, 'create'])->name('forum.create');
     Route::post('/forum', [ForumPostController::class, 'store'])->name('forum.store');
+    Route::get('/forum/{id}', [ForumPostController::class, 'show'])
+        ->name('forum.show');
+    Route::post('/forum/{id}/comment', [ForumPostController::class, 'storeComment'])
+        ->name('forum.comment.store');
     /*
     |--------------------------------------------------------------------------
     | Admin Specific Routes
