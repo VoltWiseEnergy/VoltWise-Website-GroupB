@@ -33,9 +33,11 @@ class DeviceController extends Controller
         }
 
         $request->validate([
-            'name'     => 'required|max:255',
+            'name'     => 'required|max:255|unique:devices,name',
             'wattage'  => 'required|numeric|min:1',
             'category' => 'required|max:255'
+        ], [
+            'name.unique' => 'Device name already exists.'
         ]);
 
         $dailyEnergyKwh = round(($request->wattage / 1000) * 1, 3);
@@ -75,9 +77,11 @@ class DeviceController extends Controller
         }
 
         $request->validate([
-            'name'     => 'required|max:255',
+            'name'     => 'required|max:255|unique:devices,name,' . $device->id,
             'wattage'  => 'required|integer|min:1',
             'category' => 'required|max:255'
+        ], [
+            'name.unique' => 'Device name already exists.'
         ]);
 
         $dailyEnergyKwh = round(($request->wattage / 1000) * 1, 3);
