@@ -128,7 +128,7 @@ class UsageController extends Controller
     }
  
     // ─────────────────────────────────────────
-    // Bonus — Usage hari ini (JSON, untuk dashboard)
+    // Usage hari ini 
     // GET /usage/today
     // ─────────────────────────────────────────
     public function today()
