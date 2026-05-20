@@ -31,6 +31,65 @@
     </div>
 </div>
 
+{{-- Recommendations --}}
+<div class="card" style="margin-top:1rem;">
+    <div class="card-body">
+        <div class="rec-section-header">
+            <div class="rec-section-icon icon-blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+            </div>
+            <div>
+                <div class="card-title">Personalized Recommendations</div>
+                <div class="card-subtitle">Actions you can take to reduce energy consumption</div>
+            </div>
+        </div>
+
+        <div class="rec-list">
+            @foreach($patterns['recommendations'] as $rec)
+            <div class="rec-card rec-card-{{ $rec['priority'] }}">
+                <div class="rec-card-icon">
+                    @if($rec['icon'] === 'zap')
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                        </svg>
+                    @elseif($rec['icon'] === 'clock')
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                    @elseif($rec['icon'] === 'activity')
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                        </svg>
+                    @elseif($rec['icon'] === 'trending-down')
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
+                            <polyline points="17 18 23 18 23 12"/>
+                        </svg>
+                    @else
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                    @endif
+                </div>
+                <div class="rec-card-body">
+                    <div class="rec-card-title">{{ $rec['title'] }}</div>
+                    <div class="rec-card-message">{{ $rec['message'] }}</div>
+                </div>
+                <div class="rec-priority-badge badge-{{ $rec['priority'] }}">
+                    {{ ucfirst($rec['priority']) }}
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</div>
+
 {{-- High Usage Devices --}}
 <div class="card" style="margin-top:1rem;">
     <div class="card-body">
@@ -147,6 +206,36 @@
     .rec-section-icon svg { width: 18px; height: 18px; }
 
     .rec-list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+    .rec-card {
+        display: flex; align-items: flex-start; gap: 1rem;
+        padding: 1rem 1.25rem; border-radius: 10px;
+        border-left: 4px solid transparent;
+        background: var(--bg-base);
+        border: 1px solid var(--border);
+    }
+    .rec-card-high { border-left-color: #ef4444; }
+    .rec-card-medium { border-left-color: #f59e0b; }
+    .rec-card-low { border-left-color: #10b981; }
+
+    .rec-card-icon {
+        width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        background: var(--icon-blue-bg); color: var(--icon-blue-fg);
+    }
+    .rec-card-icon svg { width: 16px; height: 16px; }
+    .rec-card-body { flex: 1; }
+    .rec-card-title { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem; }
+    .rec-card-message { font-size: 0.8125rem; color: var(--text-muted); line-height: 1.5; }
+
+    .rec-priority-badge {
+        font-size: 0.7rem; font-weight: 600; padding: 0.2rem 0.6rem;
+        border-radius: 999px; white-space: nowrap; align-self: flex-start;
+    }
+    .badge-high   { background: var(--red-100);    color: var(--red-700); }
+    .badge-medium { background: var(--orange-100); color: var(--orange-700); }
+    .badge-low    { background: var(--icon-green-bg); color: var(--icon-green-fg); }
+
     .rec-item {
         display: flex; align-items: center; justify-content: space-between;
         padding: 0.75rem 1rem; background: var(--bg-base);
