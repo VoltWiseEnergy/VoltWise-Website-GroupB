@@ -10,6 +10,8 @@ use App\Http\Controllers\RecommendationController;
 use App\Http\Controllers\Admin\MasterDeviceController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Forum\ForumPostController;
+use App\Http\Controllers\Admin\ForumModerationController;
+
 // Main Page
 Route::get('/', function () {
     return view('welcome');
@@ -79,5 +81,11 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
         Route::resource('master-devices', MasterDeviceController::class);
+        // Forum Moderation (PBI #52-55)
+        Route::get('/forum', [ForumModerationController::class, 'index'])->name('forum.index');
+        Route::get('/forum/reports', [ForumModerationController::class, 'reports'])->name('forum.reports');
+        Route::post('/forum/reports/{report}/review', [ForumModerationController::class, 'reviewReport'])->name('forum.reports.review');
+        Route::delete('/forum/{post}', [ForumModerationController::class, 'destroy'])->name('forum.destroy');
+        Route::post('/forum/{post}/verify', [ForumModerationController::class, 'toggleVerified'])->name('forum.verify');
     });
 });
