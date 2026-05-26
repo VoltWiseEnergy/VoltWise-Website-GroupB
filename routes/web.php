@@ -63,6 +63,14 @@ Route::middleware('auth')->group(function () {
         ->name('forum.show');
     Route::post('/forum/{id}/comment', [ForumPostController::class, 'storeComment'])
         ->name('forum.comment.store');
+    // EDIT POST
+    Route::get('/forum/{id}/edit', [ForumPostController::class, 'edit'])
+        ->name('forum.edit');
+    Route::put('/forum/{id}', [ForumPostController::class, 'update'])
+        ->name('forum.update');
+    // DELETE POST
+    Route::delete('/forum/{id}', [ForumPostController::class, 'destroy'])
+        ->name('forum.destroy');
     /*
     |--------------------------------------------------------------------------
     | Admin Specific Routes
