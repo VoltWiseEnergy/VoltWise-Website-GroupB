@@ -54,6 +54,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/devices/{device}',   [DeviceController::class, 'destroy'])->name('devices.destroy');
     // Recommendation Routes
     Route::get('/recommendations', [RecommendationController::class, 'index'])->name('recommendations.index');
+    Route::post('/recommendations/toggle', [RecommendationController::class, 'toggle'])->name('recommendations.toggle');
     /*
     |--------------------------------------------------------------------------
     | Admin Specific Routes
