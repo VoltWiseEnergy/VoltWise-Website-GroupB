@@ -9,6 +9,9 @@ use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\RecommendationController;
 use App\Http\Controllers\Admin\MasterDeviceController;
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Forum\ForumPostController;
+use App\Http\Controllers\Admin\ForumModerationController;
+
 // Main Page
 Route::get('/', function () {
     return view('welcome');
@@ -55,6 +58,22 @@ Route::middleware('auth')->group(function () {
     // Recommendation Routes
     Route::get('/recommendations', [RecommendationController::class, 'index'])->name('recommendations.index');
     Route::post('/recommendations/toggle', [RecommendationController::class, 'toggle'])->name('recommendations.toggle');
+    // Forum Routes
+    Route::get('/forum', [ForumPostController::class, 'index'])->name('forum.index');
+    Route::get('/forum/create', [ForumPostController::class, 'create'])->name('forum.create');
+    Route::post('/forum', [ForumPostController::class, 'store'])->name('forum.store');
+    Route::get('/forum/{id}', [ForumPostController::class, 'show'])
+        ->name('forum.show');
+    Route::post('/forum/{id}/comment', [ForumPostController::class, 'storeComment'])
+        ->name('forum.comment.store');
+    // EDIT POST
+    Route::get('/forum/{id}/edit', [ForumPostController::class, 'edit'])
+        ->name('forum.edit');
+    Route::put('/forum/{id}', [ForumPostController::class, 'update'])
+        ->name('forum.update');
+    // DELETE POST
+    Route::delete('/forum/{id}', [ForumPostController::class, 'destroy'])
+        ->name('forum.destroy');
     /*
     |--------------------------------------------------------------------------
     | Admin Specific Routes
@@ -63,5 +82,11 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
         Route::resource('master-devices', MasterDeviceController::class);
+        // Forum Moderation (PBI #52-55)
+        Route::get('/forum', [ForumModerationController::class, 'index'])->name('forum.index');
+        Route::get('/forum/reports', [ForumModerationController::class, 'reports'])->name('forum.reports');
+        Route::post('/forum/reports/{report}/review', [ForumModerationController::class, 'reviewReport'])->name('forum.reports.review');
+        Route::delete('/forum/{post}', [ForumModerationController::class, 'destroy'])->name('forum.destroy');
+        Route::post('/forum/{post}/verify', [ForumModerationController::class, 'toggleVerified'])->name('forum.verify');
     });
 });

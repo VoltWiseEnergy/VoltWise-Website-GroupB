@@ -468,6 +468,14 @@
                     </svg>
                     Master Devices
                 </a>
+                
+                <a href="{{ route('admin.forum.index') }}"
+                   class="nav-item {{ request()->routeIs('admin.forum.*') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
+                    </svg>
+                    Forum Moderation
+                </a>
             @else
                 <a href="{{ url('/dashboard') }}"
                    class="nav-item {{ request()->is('dashboard') ? 'active' : '' }}">
@@ -510,6 +518,15 @@
                         <line x1="12" y1="16" x2="12.01" y2="16"/>
                     </svg>
                     Smart Rec
+                </a>
+                <a href="{{ route('forum.index') }}"
+                   class="nav-item {{ request()->routeIs('forum.*') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    Forum
                 </a>
             @endif
         </nav>
