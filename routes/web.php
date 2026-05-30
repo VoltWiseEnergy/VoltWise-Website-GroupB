@@ -57,6 +57,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/devices/{device}',   [DeviceController::class, 'destroy'])->name('devices.destroy');
     // Recommendation Routes
     Route::get('/recommendations', [RecommendationController::class, 'index'])->name('recommendations.index');
+    Route::post('/recommendations/toggle', [RecommendationController::class, 'toggle'])->name('recommendations.toggle');
     // Forum Routes
     Route::get('/forum', [ForumPostController::class, 'index'])->name('forum.index');
     Route::get('/forum/create', [ForumPostController::class, 'create'])->name('forum.create');
