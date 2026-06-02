@@ -1,13 +1,10 @@
 @extends('layouts.auth')
-
 @section('title', 'Register')
 @section('meta-desc', 'Create a new VoltWise Energy account')
 
-{{-- ===================== LEFT PANEL CONTENT ===================== --}}
 @section('panel-content')
     <h2>Join VoltWise<br>in 3 easy steps</h2>
     <p>Create your account and start monitoring your electricity usage today. It's free to get started.</p>
-
     <div class="steps-list">
         <div class="step-item">
             <div class="step-number">1</div>
@@ -33,15 +30,12 @@
     </div>
 @endsection
 
-{{-- ===================== FORM CONTENT ===================== --}}
 @section('form-content')
-    {{-- Header --}}
     <div class="form-header">
         <h1>Create account</h1>
         <p>Start monitoring your energy for free</p>
     </div>
 
-    {{-- Global error --}}
     @if ($errors->has('general'))
         <div class="alert alert-error" role="alert">
             <span class="alert-icon">
@@ -51,7 +45,6 @@
         </div>
     @endif
 
-    {{-- Form --}}
     <form method="POST" action="{{ route('register') }}" id="register-form" novalidate>
         @csrf
 
@@ -96,6 +89,28 @@
                     autocomplete="email" required>
             </div>
             @error('email')
+                <div class="field-error">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    {{ $message }}
+                </div>
+            @enderror
+        </div>
+
+        {{-- Phone --}}
+        <div class="form-group">
+            <label class="form-label" for="phone">Phone Number</label>
+            <div class="input-wrapper">
+                <span class="input-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6.29 6.29l.61-.61a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                    </svg>
+                </span>
+                <input type="text" id="phone" name="phone"
+                    class="form-input {{ $errors->has('phone') ? 'is-invalid' : '' }}"
+                    placeholder="+62 xxx xxxx xxxx" value="{{ old('phone') }}"
+                    autocomplete="tel" required>
+            </div>
+            @error('phone')
                 <div class="field-error">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                     {{ $message }}
@@ -191,7 +206,6 @@
     </div>
 @endsection
 
-{{-- ===================== PAGE SCRIPTS ===================== --}}
 @section('page-scripts')
     function togglePwd(fieldId, iconId) {
         const input = document.getElementById(fieldId);
@@ -202,7 +216,6 @@
             ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`
             : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
     }
-
     function checkStrength(pass) {
         const meter = document.getElementById('strength-meter');
         const segs  = ['seg1','seg2','seg3','seg4'].map(id => document.getElementById(id));
@@ -226,7 +239,6 @@
         label.textContent = lv.text;
         label.style.color = lv.color;
     }
-
     document.getElementById('register-form').addEventListener('submit', function(e) {
         if (!document.getElementById('terms').checked) {
             e.preventDefault();

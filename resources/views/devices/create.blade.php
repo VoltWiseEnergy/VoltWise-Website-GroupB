@@ -30,45 +30,69 @@
             @if($masterDevices->count() > 0)
                 <div class="template-box">
                     <div class="template-label">Quick Add from Device Library</div>
+
                     <select name="master_device_id" class="form-input">
                         <option value="">— Select a device template or type manually below —</option>
+
                         @foreach($masterDevices as $md)
                             <option value="{{ $md->id }}" {{ old('master_device_id') == $md->id ? 'selected' : '' }}>
                                 {{ $md->name }} ({{ number_format($md->wattage, 0) }}W — {{ $md->category }})
                             </option>
                         @endforeach
                     </select>
-                    <div class="template-hint">Pick a template to use its wattage and category, or skip and type manually</div>
+
+                    <div class="template-hint">
+                        Pick a template to use its wattage and category, or skip and type manually
+                    </div>
                 </div>
 
                 <div class="divider-or">or fill in manually</div>
             @endif
 
             <div class="form-group">
-                <label class="form-label">Device Name</label>
+                <label class="form-label">
+                    Device Name <span class="required-star">*</span>
+                </label>
+
                 <input 
                     type="text" 
                     name="name" 
                     class="form-input"
                     placeholder="e.g. Air Conditioner"
                     value="{{ old('name') }}"
+                    required
                 >
+
+                <small class="required-text">
+                    This field is required and device names must be unique.
+                </small>
             </div>
 
             <div class="form-group">
-                <label class="form-label">Wattage</label>
+                <label class="form-label">
+                    Wattage <span class="required-star">*</span>
+                </label>
+
                 <input 
                     type="number" 
                     name="wattage" 
                     class="form-input"
                     placeholder="e.g. 900"
                     value="{{ old('wattage') }}"
+                    required
                 >
+
+                <small class="required-text">
+                    Required field.
+                </small>
             </div>
 
             <div class="form-group">
-                <label class="form-label">Category</label>
-                <select name="category" class="form-input">
+                <label class="form-label">
+                    Category <span class="required-star">*</span>
+                </label>
+
+                <select name="category" class="form-input" required>
                     <option value="">Select Category</option>
                     <option value="Kitchen" {{ old('category') == 'Kitchen' ? 'selected' : '' }}>Kitchen</option>
                     <option value="Entertainment" {{ old('category') == 'Entertainment' ? 'selected' : '' }}>Entertainment</option>
@@ -77,6 +101,10 @@
                     <option value="Cleaning" {{ old('category') == 'Cleaning' ? 'selected' : '' }}>Cleaning</option>
                     <option value="Other" {{ old('category') == 'Other' ? 'selected' : '' }}>Other</option>
                 </select>
+
+                <small class="required-text">
+                    Required field.
+                </small>
             </div>
 
             <div class="form-actions">
@@ -107,6 +135,18 @@
     font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 8px;
+}
+
+.required-star {
+    color: #ef4444;
+    margin-left: 2px;
+}
+
+.required-text {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--text-faint);
 }
 
 .form-input {

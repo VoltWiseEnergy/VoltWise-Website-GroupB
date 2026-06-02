@@ -63,12 +63,10 @@
             --logout-hover-color: #ef4444;
             --flash-bg: #f0fdf4; --flash-border: #bbf7d0; --flash-color: #166534;
 
-            /* Avatar & Profile */
             --avatar-menu-bg: #ffffff;
             --avatar-menu-border: #e2e8f0;
             --avatar-menu-color: #0f172a;
 
-            /* Budget Tracker */
             --budget-track-bg:      #e2e8f0;
             --budget-bar-safe:      #10b981;
             --budget-bar-warn:      #f59e0b;
@@ -81,6 +79,10 @@
             --budget-badge-danger-bg: #fee2e2;
             --modal-overlay:        rgba(15,23,42,0.45);
             --modal-bg:              #ffffff;
+
+            --red-100: #fee2e2; --red-700: #b91c1c;
+            --orange-100: #ffedd5; --orange-700: #c2410c;
+            --purple-100: #ede9fe; --purple-700: #6d28d9;
         }
 
         [data-theme="dark"] {
@@ -130,12 +132,10 @@
             --logout-hover-color: #f87171;
             --flash-bg: rgba(16,185,129,0.1); --flash-border: rgba(16,185,129,0.2); --flash-color: #6ee7b7;
 
-            /* Avatar & Profile */
             --avatar-menu-bg: #1a2235;
             --avatar-menu-border: rgba(255,255,255,0.07);
             --avatar-menu-color: #f1f5f9;
 
-            /* Budget Tracker */
             --budget-track-bg:      rgba(255,255,255,0.08);
             --budget-bar-safe:      #10b981;
             --budget-bar-warn:      #f59e0b;
@@ -148,22 +148,17 @@
             --budget-badge-danger-bg: rgba(239,68,68,0.15);
             --modal-overlay:        rgba(0,0,0,0.65);
             --modal-bg:              #1a2235;
+
+            --red-100: rgba(239,68,68,0.15); --red-700: #fca5a5;
+            --orange-100: rgba(249,115,22,0.15); --orange-700: #fdba74;
+            --purple-100: rgba(139,92,246,0.15); --purple-700: #c4b5fd;
         }
 
-        /* =============================================
-           BASE
-        ============================================= */
         html { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; font-size:14px; -webkit-font-smoothing:antialiased; }
         body { background:var(--bg-base); color:var(--text-primary); min-height:100vh; transition:background 0.25s, color 0.25s; }
 
-        /* =============================================
-           APP SHELL
-        ============================================= */
         .app-shell { display:flex; min-height:100vh; }
 
-        /* =============================================
-           SIDEBAR
-        ============================================= */
         .sidebar {
             width:200px; background:var(--bg-sidebar);
             border-right:1px solid var(--border);
@@ -210,12 +205,8 @@
         .logout-btn:hover { background:var(--logout-hover-bg); color:var(--logout-hover-color); }
         .logout-btn svg { width:16px; height:16px; }
 
-        /* =============================================
-           MAIN AREA
-        ============================================= */
         .main-area { margin-left:200px; flex:1; display:flex; flex-direction:column; min-height:100vh; }
 
-        /* TOP BAR */
         .topbar {
             height:60px; background:var(--bg-topbar);
             border-bottom:1px solid var(--border);
@@ -234,7 +225,6 @@
         .topbar-icon-btn:hover { background:var(--icon-btn-hover); color:var(--text-primary); transform:rotate(20deg); }
         .topbar-icon-btn svg { width:17px; height:17px; }
 
-        /* Theme icon swap */
         .theme-icon { position:absolute; transition:opacity 0.3s, transform 0.3s; }
         [data-theme="light"] .icon-moon { opacity:1; transform:scale(1); }
         [data-theme="light"] .icon-sun  { opacity:0; transform:scale(0.5); }
@@ -250,46 +240,28 @@
             transition:border-color 0.25s, background 0.25s;
         }
 
-        /* Avatar dropdown menu */
         .avatar-menu {
-            position:absolute;
-            top:calc(100% + 10px);
-            right:0;
-            background:var(--avatar-menu-bg);
-            border:1px solid var(--avatar-menu-border);
-            border-radius:10px;
-            padding:0.5rem;
-            display:none;
-            z-index:999;
-            min-width:150px;
-            box-shadow:0 4px 20px rgba(0,0,0,0.12);
+            position:absolute; top:calc(100% + 10px); right:0;
+            background:var(--avatar-menu-bg); border:1px solid var(--avatar-menu-border);
+            border-radius:10px; padding:0.5rem; display:none; z-index:999;
+            min-width:150px; box-shadow:0 4px 20px rgba(0,0,0,0.12);
             transition:background 0.25s, border-color 0.25s;
         }
         .avatar-menu.open { display:block; }
-        .avatar-menu a,
-        .avatar-menu button {
+        .avatar-menu a, .avatar-menu button {
             display:flex; align-items:center; gap:0.5rem;
-            width:100%; padding:0.5rem 0.75rem;
-            border-radius:6px; text-decoration:none;
-            font-size:0.8125rem; font-weight:500;
-            color:var(--avatar-menu-color);
-            background:none; border:none; cursor:pointer;
-            font-family:'Inter',sans-serif;
-            transition:background 0.15s, color 0.15s;
-            text-align:left;
+            width:100%; padding:0.5rem 0.75rem; border-radius:6px;
+            text-decoration:none; font-size:0.8125rem; font-weight:500;
+            color:var(--avatar-menu-color); background:none; border:none;
+            cursor:pointer; font-family:'Inter',sans-serif;
+            transition:background 0.15s, color 0.15s; text-align:left;
         }
         .avatar-menu a:hover { background:var(--nav-hover-bg); }
         .avatar-menu button:hover { background:var(--logout-hover-bg); color:var(--logout-hover-color); }
         .avatar-menu-divider { height:1px; background:var(--border); margin:0.25rem 0; }
 
-        /* PAGE CONTENT */
         .page-content { padding:1.75rem; flex:1; }
 
-        /* =============================================
-           SHARED COMPONENT STYLES
-        ============================================= */
-
-        /* Flash */
         .flash {
             display:flex; align-items:center; gap:0.5rem;
             padding:0.75rem 1rem; border-radius:8px; font-size:0.8125rem;
@@ -298,12 +270,10 @@
         }
         .flash svg { width:14px; height:14px; flex-shrink:0; }
 
-        /* Page header */
         .page-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:1.5rem; }
         .page-title    { font-size:1.5rem; font-weight:700; letter-spacing:-0.025em; color:var(--text-primary); transition:color 0.25s; }
         .page-subtitle { font-size:0.875rem; color:var(--text-muted); margin-top:0.25rem; transition:color 0.25s; }
 
-        /* Cards */
         .card {
             background:var(--bg-card); border:1px solid var(--border);
             border-radius:12px; box-shadow:var(--shadow-card);
@@ -313,7 +283,6 @@
         .card-title    { font-size:0.875rem; font-weight:600; color:var(--text-primary); transition:color 0.25s; }
         .card-subtitle { font-size:0.75rem; color:var(--text-faint); margin-top:2px; transition:color 0.25s; }
 
-        /* Stat card */
         .stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem; }
         .stat-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem; }
         .stat-label  { font-size:0.8125rem; font-weight:500; color:var(--text-muted); transition:color 0.25s; }
@@ -328,12 +297,11 @@
         .icon-green  { background:var(--icon-green-bg);  color:var(--icon-green-fg); }
         .icon-orange { background:var(--icon-orange-bg); color:var(--icon-orange-fg); }
         .icon-purple { background:var(--icon-purple-bg); color:var(--icon-purple-fg); }
+        .icon-red    { background:var(--red-100);         color:var(--red-700); }
 
-        /* Chart row */
         .chart-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem; }
         .chart-card { display:flex; flex-direction:column; min-height:220px; }
 
-        /* Empty state */
         .empty-state {
             flex:1; display:flex; align-items:center; justify-content:center;
             flex-direction:column; gap:0.5rem; color:var(--text-faint);
@@ -341,7 +309,6 @@
         .empty-state svg { width:36px; height:36px; opacity:0.35; }
         .empty-state p   { font-size:0.8125rem; text-align:center; }
 
-        /* Welcome banner */
         .welcome-banner {
             background:var(--bg-banner); border:1px solid var(--bg-banner-border);
             border-radius:12px; padding:1.25rem 1.5rem; margin-bottom:1.5rem;
@@ -372,7 +339,6 @@
         .wf-title { font-size:0.8125rem; font-weight:600; color:var(--text-secondary); transition:color 0.25s; }
         .wf-desc  { font-size:0.75rem; color:var(--text-muted); margin-top:2px; transition:color 0.25s; }
 
-        /* Tips */
         .tips-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0.875rem; }
         .tip-item {
             background:var(--bg-tip); border:1px solid var(--border);
@@ -389,7 +355,6 @@
         .tip-title { font-size:0.8125rem; font-weight:600; color:var(--text-secondary); transition:color 0.25s; }
         .tip-desc  { font-size:0.75rem; color:var(--text-muted); margin-top:3px; line-height:1.4; transition:color 0.25s; }
 
-        /* Add Device button */
         .btn-primary {
             display:flex; align-items:center; gap:0.375rem;
             padding:0.5rem 1rem; background:var(--blue-600); color:white;
@@ -401,158 +366,55 @@
         .btn-primary:hover { background:var(--blue-700); transform:translateY(-1px); box-shadow:0 4px 14px rgba(74,124,246,0.4); }
         .btn-primary svg { width:14px; height:14px; }
 
-        /* =============================================
-           BUDGET TRACKER CARD
-        ============================================= */
         .budget-card { margin-bottom: 1.5rem; }
         .budget-card-inner { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1.25rem; }
-
         .budget-left { flex:1; min-width:0; }
-        .budget-amounts {
-            display:flex; align-items:baseline; gap:0.375rem;
-            margin-bottom:0.625rem;
-        }
-        .budget-used {
-            font-size:1.75rem; font-weight:700; letter-spacing:-0.03em;
-            color:var(--text-primary); transition:color 0.25s;
-        }
+        .budget-amounts { display:flex; align-items:baseline; gap:0.375rem; margin-bottom:0.625rem; }
+        .budget-used { font-size:1.75rem; font-weight:700; letter-spacing:-0.03em; color:var(--text-primary); transition:color 0.25s; }
         .budget-sep { font-size:1rem; color:var(--text-faint); }
         .budget-total { font-size:1rem; font-weight:500; color:var(--text-muted); }
         .budget-no-set { font-size:0.8125rem; color:var(--text-faint); font-style:italic; margin-bottom:0.625rem; }
-
-        /* Progress bar track */
-        .budget-track {
-            width:100%; height:10px; background:var(--budget-track-bg);
-            border-radius:99px; overflow:hidden; margin-bottom:0.5rem;
-        }
-        .budget-fill {
-            height:100%; border-radius:99px;
-            background:var(--budget-bar-safe);
-            transition:width 0.8s cubic-bezier(.4,0,.2,1), background 0.4s;
-            will-change:width;
-        }
+        .budget-track { width:100%; height:10px; background:var(--budget-track-bg); border-radius:99px; overflow:hidden; margin-bottom:0.5rem; }
+        .budget-fill { height:100%; border-radius:99px; background:var(--budget-bar-safe); transition:width 0.8s cubic-bezier(.4,0,.2,1), background 0.4s; will-change:width; }
         .budget-fill.warn   { background:var(--budget-bar-warn); }
         .budget-fill.danger { background:var(--budget-bar-danger); }
-
         .budget-meta { display:flex; align-items:center; gap:0.5rem; }
-        .budget-pct-badge {
-            display:inline-flex; align-items:center;
-            padding:0.2rem 0.55rem; border-radius:99px;
-            font-size:0.75rem; font-weight:700;
-            background:var(--budget-badge-safe-bg);
-            color:var(--budget-label-safe);
-            transition:background 0.3s,color 0.3s;
-        }
+        .budget-pct-badge { display:inline-flex; align-items:center; padding:0.2rem 0.55rem; border-radius:99px; font-size:0.75rem; font-weight:700; background:var(--budget-badge-safe-bg); color:var(--budget-label-safe); transition:background 0.3s,color 0.3s; }
         .budget-pct-badge.warn   { background:var(--budget-badge-warn-bg);   color:var(--budget-label-warn); }
         .budget-pct-badge.danger { background:var(--budget-badge-danger-bg); color:var(--budget-label-danger); }
         .budget-pct-label { font-size:0.75rem; color:var(--text-faint); }
-
         .budget-right { display:flex; flex-direction:column; align-items:flex-end; gap:0.5rem; flex-shrink:0; }
         .budget-actions { display:flex; gap:0.5rem; align-items:center; }
-        .btn-budget-set {
-            display:inline-flex; align-items:center; gap:0.375rem;
-            padding:0.45rem 0.875rem; border-radius:8px;
-            font-size:0.8125rem; font-weight:600; font-family:'Inter',sans-serif;
-            background:var(--blue-600); color:#fff; border:none; cursor:pointer;
-            transition:background 0.15s,transform 0.15s,box-shadow 0.15s;
-            box-shadow:0 2px 8px rgba(74,124,246,0.3);
-        }
+        .btn-budget-set { display:inline-flex; align-items:center; gap:0.375rem; padding:0.45rem 0.875rem; border-radius:8px; font-size:0.8125rem; font-weight:600; font-family:'Inter',sans-serif; background:var(--blue-600); color:#fff; border:none; cursor:pointer; transition:background 0.15s,transform 0.15s,box-shadow 0.15s; box-shadow:0 2px 8px rgba(74,124,246,0.3); }
         .btn-budget-set:hover { background:var(--blue-700); transform:translateY(-1px); box-shadow:0 4px 12px rgba(74,124,246,0.4); }
         .btn-budget-set svg { width:13px; height:13px; }
-        .btn-budget-clear {
-            display:inline-flex; align-items:center; gap:0.3rem;
-            padding:0.45rem 0.75rem; border-radius:8px;
-            font-size:0.8125rem; font-weight:500; font-family:'Inter',sans-serif;
-            background:none; color:var(--text-faint); border:1px solid var(--border);
-            cursor:pointer; transition:border-color 0.15s,color 0.15s,background 0.15s;
-        }
+        .btn-budget-clear { display:inline-flex; align-items:center; gap:0.3rem; padding:0.45rem 0.75rem; border-radius:8px; font-size:0.8125rem; font-weight:500; font-family:'Inter',sans-serif; background:none; color:var(--text-faint); border:1px solid var(--border); cursor:pointer; transition:border-color 0.15s,color 0.15s,background 0.15s; }
         .btn-budget-clear:hover { border-color:#ef4444; color:#ef4444; background:rgba(239,68,68,0.05); }
         .btn-budget-clear svg { width:12px; height:12px; }
 
-        /* =============================================
-           BUDGET MODAL
-        ============================================= */
-        .modal-overlay {
-            position:fixed; inset:0; background:var(--modal-overlay);
-            z-index:1000; display:flex; align-items:center; justify-content:center;
-            opacity:0; pointer-events:none;
-            transition:opacity 0.2s;
-            backdrop-filter:blur(2px);
-        }
+        .modal-overlay { position:fixed; inset:0; background:var(--modal-overlay); z-index:1000; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.2s; backdrop-filter:blur(2px); }
         .modal-overlay.open { opacity:1; pointer-events:auto; }
-        .modal {
-            background:var(--modal-bg); border:1px solid var(--border);
-            border-radius:16px; padding:1.75rem; width:100%; max-width:420px;
-            box-shadow:0 20px 60px rgba(0,0,0,0.2);
-            transform:scale(0.95) translateY(8px);
-            transition:transform 0.25s cubic-bezier(.4,0,.2,1), background 0.25s, border-color 0.25s;
-        }
+        .modal { background:var(--modal-bg); border:1px solid var(--border); border-radius:16px; padding:1.75rem; width:100%; max-width:420px; box-shadow:0 20px 60px rgba(0,0,0,0.2); transform:scale(0.95) translateY(8px); transition:transform 0.25s cubic-bezier(.4,0,.2,1), background 0.25s, border-color 0.25s; }
         .modal-overlay.open .modal { transform:scale(1) translateY(0); }
-        .modal-header {
-            display:flex; align-items:center; justify-content:space-between;
-            margin-bottom:1.25rem;
-        }
+        .modal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem; }
         .modal-title { font-size:1rem; font-weight:700; color:var(--text-primary); transition:color 0.25s; }
-        .modal-close {
-            width:28px; height:28px; display:flex; align-items:center; justify-content:center;
-            border-radius:50%; background:none; border:none; cursor:pointer;
-            color:var(--text-faint); transition:background 0.15s,color 0.15s;
-        }
+        .modal-close { width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:none; border:none; cursor:pointer; color:var(--text-faint); transition:background 0.15s,color 0.15s; }
         .modal-close:hover { background:var(--icon-btn-hover); color:var(--text-primary); }
         .modal-close svg { width:14px; height:14px; }
         .modal-desc { font-size:0.8125rem; color:var(--text-muted); margin-bottom:1.25rem; line-height:1.5; transition:color 0.25s; }
-        .modal-label {
-            display:block; font-size:0.8125rem; font-weight:600;
-            color:var(--text-secondary); margin-bottom:0.4rem; transition:color 0.25s;
-        }
-        .input-with-prefix {
-            display:flex; align-items:center;
-            border:1.5px solid var(--border); border-radius:9px; overflow:hidden;
-            transition:border-color 0.2s, box-shadow 0.2s;
-        }
-        .input-with-prefix:focus-within {
-            border-color:var(--blue-600);
-            box-shadow:0 0 0 3px rgba(74,124,246,0.15);
-        }
-        .input-prefix {
-            padding:0.65rem 0.75rem;
-            background:var(--bg-tip); color:var(--text-muted);
-            font-size:0.875rem; font-weight:600;
-            border-right:1.5px solid var(--border);
-            white-space:nowrap; transition:background 0.25s, border-color 0.25s, color 0.25s;
-        }
-        .input-budget {
-            flex:1; padding:0.65rem 0.875rem;
-            background:transparent; border:none; outline:none;
-            font-size:0.9375rem; font-weight:600;
-            color:var(--text-primary); font-family:'Inter',sans-serif;
-            transition:color 0.25s;
-        }
+        .modal-label { display:block; font-size:0.8125rem; font-weight:600; color:var(--text-secondary); margin-bottom:0.4rem; transition:color 0.25s; }
+        .input-with-prefix { display:flex; align-items:center; border:1.5px solid var(--border); border-radius:9px; overflow:hidden; transition:border-color 0.2s, box-shadow 0.2s; }
+        .input-with-prefix:focus-within { border-color:var(--blue-600); box-shadow:0 0 0 3px rgba(74,124,246,0.15); }
+        .input-prefix { padding:0.65rem 0.75rem; background:var(--bg-tip); color:var(--text-muted); font-size:0.875rem; font-weight:600; border-right:1.5px solid var(--border); white-space:nowrap; transition:background 0.25s, border-color 0.25s, color 0.25s; }
+        .input-budget { flex:1; padding:0.65rem 0.875rem; background:transparent; border:none; outline:none; font-size:0.9375rem; font-weight:600; color:var(--text-primary); font-family:'Inter',sans-serif; transition:color 0.25s; }
         .input-budget::placeholder { color:var(--text-faint); font-weight:400; }
         .modal-hint { font-size:0.75rem; color:var(--text-faint); margin-top:0.375rem; transition:color 0.25s; }
-        .modal-actions {
-            display:flex; gap:0.625rem; margin-top:1.5rem;
-        }
-        .btn-modal-cancel {
-            flex:1; padding:0.6rem; border-radius:8px;
-            background:none; border:1.5px solid var(--border);
-            font-size:0.875rem; font-weight:600; font-family:'Inter',sans-serif;
-            color:var(--text-muted); cursor:pointer;
-            transition:border-color 0.15s,color 0.15s,background 0.15s;
-        }
+        .modal-actions { display:flex; gap:0.625rem; margin-top:1.5rem; }
+        .btn-modal-cancel { flex:1; padding:0.6rem; border-radius:8px; background:none; border:1.5px solid var(--border); font-size:0.875rem; font-weight:600; font-family:'Inter',sans-serif; color:var(--text-muted); cursor:pointer; transition:border-color 0.15s,color 0.15s,background 0.15s; }
         .btn-modal-cancel:hover { background:var(--nav-hover-bg); color:var(--text-primary); }
-        .btn-modal-save {
-            flex:2; padding:0.6rem; border-radius:8px;
-            background:var(--blue-600); border:none; color:#fff;
-            font-size:0.875rem; font-weight:700; font-family:'Inter',sans-serif;
-            cursor:pointer; transition:background 0.15s,transform 0.1s,box-shadow 0.15s;
-            box-shadow:0 2px 8px rgba(74,124,246,0.3);
-        }
+        .btn-modal-save { flex:2; padding:0.6rem; border-radius:8px; background:var(--blue-600); border:none; color:#fff; font-size:0.875rem; font-weight:700; font-family:'Inter',sans-serif; cursor:pointer; transition:background 0.15s,transform 0.1s,box-shadow 0.15s; box-shadow:0 2px 8px rgba(74,124,246,0.3); }
         .btn-modal-save:hover { background:var(--blue-700); transform:translateY(-1px); box-shadow:0 4px 14px rgba(74,124,246,0.4); }
 
-        /* =============================================
-           RESPONSIVE
-        ============================================= */
         @media (max-width: 1100px) {
             .stat-grid        { grid-template-columns:repeat(2,1fr); }
             .welcome-features { grid-template-columns:1fr 1fr; }
@@ -572,7 +434,6 @@
 </head>
 <body>
 
-{{-- Apply saved theme before paint to avoid flash --}}
 <script>
     (function(){
         const t = localStorage.getItem('voltwise-theme') || 'light';
@@ -582,7 +443,6 @@
 
 <div class="app-shell">
 
-    {{-- ===== SIDEBAR ===== --}}
     <aside class="sidebar">
         <a href="{{ auth()->user()->isAdmin() ? route('admin.dashboard') : url('/dashboard') }}" class="sidebar-brand">
             <div class="brand-bolt">
@@ -593,7 +453,6 @@
 
         <nav class="sidebar-nav" aria-label="Main">
             @if(auth()->user()->isAdmin())
-                {{-- ========== ADMIN SIDEBAR ========== --}}
                 <a href="{{ route('admin.dashboard') }}"
                    class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -609,8 +468,15 @@
                     </svg>
                     Master Devices
                 </a>
+                
+                <a href="{{ route('admin.forum.index') }}"
+                   class="nav-item {{ request()->routeIs('admin.forum.*') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
+                    </svg>
+                    Forum Moderation
+                </a>
             @else
-                {{-- ========== USER SIDEBAR (unchanged) ========== --}}
                 <a href="{{ url('/dashboard') }}"
                    class="nav-item {{ request()->is('dashboard') ? 'active' : '' }}">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -619,14 +485,15 @@
                     </svg>
                     Dashboard
                 </a>
-                <a href="{{ route('devices.index') }}" 
+                <a href="{{ route('devices.index') }}"
                    class="nav-item {{ request()->is('devices*') ? 'active' : '' }}">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
                     </svg>
                     My Devices
                 </a>
-                <a href="{{ route('usage.tracker') }}" class="nav-item {{ request()->routeIs('usage.*') ? 'active' : '' }}">
+                <a href="{{ route('usage.tracker') }}"
+                   class="nav-item {{ request()->routeIs('usage.*') ? 'active' : '' }}">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
                         <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
@@ -641,12 +508,32 @@
                     My Points
                 </a>
                 <a href="#" class="nav-item {{ request()->is('analytics*') ? 'active' : '' }}">
+                <a href="#"
+                   class="nav-item {{ request()->is('analytics*') ? 'active' : '' }}">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="18" y1="20" x2="18" y2="10"/>
                         <line x1="12" y1="20" x2="12" y2="4"/>
                         <line x1="6"  y1="20" x2="6"  y2="14"/>
                     </svg>
                     Analytics
+                </a>
+                <a href="{{ route('recommendations.index') }}"
+                   class="nav-item {{ request()->routeIs('recommendations.*') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    Smart Rec
+                </a>
+                <a href="{{ route('forum.index') }}"
+                   class="nav-item {{ request()->routeIs('forum.*') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    Forum
                 </a>
             @endif
         </nav>
@@ -665,11 +552,8 @@
         </div>
     </aside>
 
-
-    {{-- ===== MAIN ===== --}}
     <div class="main-area">
 
-        {{-- Top Bar --}}
         <header class="topbar">
             <button class="topbar-icon-btn" id="theme-toggle" title="Toggle dark mode" aria-label="Toggle dark mode">
                 <svg class="theme-icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -716,7 +600,6 @@
             </div>
         </header>
 
-        {{-- Page Content --}}
         <main class="page-content">
             @if (session('success'))
                 <div class="flash" role="status">
@@ -731,11 +614,10 @@
             @yield('content')
         </main>
 
-    </div>{{-- /.main-area --}}
-</div>{{-- /.app-shell --}}
+    </div>
+</div>
 
 <script>
-    // Avatar dropdown
     const avatarBtn = document.getElementById('avatar-btn');
     const avatarMenu = document.getElementById('avatar-menu');
 
@@ -750,7 +632,6 @@
         }
     });
 
-    // Dark mode toggle
     document.getElementById('theme-toggle').addEventListener('click', function() {
         const html = document.documentElement;
         const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
