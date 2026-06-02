@@ -5,26 +5,31 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Device;
 use App\Models\UsageLog;
+use App\Services\PointService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
+    public function __construct(private PointService $pointService) {}
+
     /**
      * Display the user dashboard.
      */
     public function index()
     {
-        $userId = Auth::id();
+        $user   = Auth::user();
+        $userId = $user->id;
+
         $devices = Device::where('user_id', $userId)->orderBy('name')->get();
         $totalDevices = $devices->count();
-        
+
         // Fetch today's usage logs for the user
         $todayLogs = UsageLog::where('user_id', $userId)
             ->where('usage_date', Carbon::today()->toDateString())
             ->get()
             ->keyBy('device_id');
-            
+
         // Map devices to add a daily_energy_kwh property dynamically
         $devices->map(function ($device) use ($todayLogs) {
             $log = $todayLogs->get($device->id);
@@ -42,12 +47,21 @@ class DashboardController extends Controller
         });
 
         $todayEnergyKwh = $devices->sum('daily_energy_kwh');
-        $todayCost = $devices->sum('tariff'); // NEW: total cost across all devices
-        $topConsumer = $devices->sortByDesc('daily_energy_kwh')->first();
+        $todayCost      = $devices->sum('tariff');
+        $topConsumer    = $devices->sortByDesc('daily_energy_kwh')->first();
         $energyByCategory = $devices->groupBy('category')->map(fn ($group) => $group->sum('daily_energy_kwh'));
 
         // Monthly cost estimation: today's total cost × 30 days
         $monthlyCost = $todayCost * 30;
+
+        // ── Points ──────────────────────────────────────────────────────────
+        // Award daily points (idempotent — safe to call on every page load)
+        $newlyAwarded = $this->pointService->awardDailyPoints($user);
+        // Refresh user to get updated points total
+        $user->refresh();
+        $totalPoints  = $user->points ?? 0;
+        $level        = $this->pointService->getLevel($totalPoints);
+        $todayAwards  = $this->pointService->getTodayAwards($user);
 
         return view('dashboard', compact(
             'devices',
@@ -56,7 +70,11 @@ class DashboardController extends Controller
             'topConsumer',
             'energyByCategory',
             'todayCost',
-            'monthlyCost'
+            'monthlyCost',
+            'totalPoints',
+            'level',
+            'todayAwards',
+            'newlyAwarded'
         ));
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UsageController;
 use App\Http\Controllers\DeviceController;
+use App\Http\Controllers\PointsController;
 use App\Http\Controllers\RecommendationController;
 use App\Http\Controllers\Admin\MasterDeviceController;
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -48,6 +49,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/usage/override',[UsageController::class, 'override'])->name('usage.override');
     Route::get('/usage/history',  [UsageController::class, 'history'])->name('usage.history');
     Route::get('/usage/today',    [UsageController::class, 'today'])->name('usage.today');
+
+    // Points / Gamification Routes
+    Route::get('/points', [PointsController::class, 'index'])->name('points.index');
+
     // Device Routes
     Route::get('/devices',               [DeviceController::class, 'index'])->name('devices.index');
     Route::get('/devices/create',        [DeviceController::class, 'create'])->name('devices.create');
