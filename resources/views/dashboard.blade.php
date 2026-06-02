@@ -1,32 +1,15 @@
-    @extends('layouts.app')
+@extends('layouts.app')
 
-    @section('title', 'Dashboard')
-    @section('meta-desc', 'VoltWise Energy Dashboard - Monitor your electricity consumption')
+@section('title', 'Dashboard')
+@section('meta-desc', 'VoltWise Energy Dashboard - Monitor your electricity consumption')
 
-    @php
-        /* ---- Budget calculations ---- */
-        $budget      = auth()->user()->monthly_budget;         // null = not set
-        $monthlyCost = $monthlyCost ?? 0;
-        $pct         = ($budget && $budget > 0)
-                        ? min(round(($monthlyCost / $budget) * 100, 1), 100)
-                        : 0;
-        $fillClass   = $pct >= 90 ? 'danger' : ($pct >= 70 ? 'warn' : '');
-        $budgetFmt   = $budget ? 'Rp ' . number_format($budget, 0, ',', '.') : null;
-        $usedFmt     = 'Rp ' . number_format($monthlyCost, 0, ',', '.');
-    @endphp
-
-    @php
-        /* ---- Budget calculations ---- */
-        $budget      = auth()->user()->monthly_budget;         // null = not set
-        $monthlyCost = auth()->user()->devices()->sum('monthly_cost') ?? 0;                                    
-        $pct         = ($budget && $budget > 0)
+@php
+    $budget      = auth()->user()->monthly_budget;
+    $monthlyCost = auth()->user()->devices()->sum('monthly_cost') ?? 0;
+    $pct         = ($budget && $budget > 0)
                     ? min(round(($monthlyCost / $budget) * 100, 1), 100)
                     : 0;
-        $fillClass = ($pct <= 0)
-            ? 'danger'
-            : ($pct >= 90
-            ? 'danger'
-            : ($pct >= 75 ? 'warn' : 'safe'));
+    $fillClass   = $pct >= 90 ? 'danger' : ($pct >= 75 ? 'warn' : 'safe');
     $budgetFmt   = $budget ? 'Rp ' . number_format($budget, 0, ',', '.') : null;
     $usedFmt     = 'Rp ' . number_format($monthlyCost, 0, ',', '.');
 @endphp
@@ -141,107 +124,14 @@
                     <div class="welcome-heading">Welcome to <span>VoltWise!</span></div>
                     <div class="welcome-user">Hi, {{ auth()->user()->name }}!</div>
                 </div>
-        $budgetFmt   = $budget ? 'Rp ' . number_format($budget, 0, ',', '.') : null;
-        $usedFmt     = 'Rp ' . number_format($monthlyCost, 0, ',', '.');
-    @endphp
-
-    @section('styles')
-    <style>
-    /* ── Chart legend pills ── */
-    .chart-legend { display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; }
-    .legend-item  { display:flex; align-items:center; gap:0.3rem; font-size:0.72rem; color:var(--text-muted); }
-    .legend-dot   { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-
-    /* ── Consumers table ── */
-    .consumers-table { width:100%; border-collapse:collapse; }
-    .consumers-table thead th {
-        font-size:0.72rem; font-weight:600; color:var(--text-muted);
-        text-transform:uppercase; letter-spacing:0.06em;
-        padding:0.4rem 0.75rem; border-bottom:1px solid var(--border); text-align:left;
-    }
-    .consumers-table tbody td {
-        padding:0.6rem 0.75rem; font-size:0.8rem; color:var(--text-secondary);
-        border-bottom:1px solid var(--border); vertical-align:middle;
-    }
-    .consumers-table tbody tr:last-child td { border-bottom:none; }
-    .consumers-table tbody tr:hover td { background:rgba(74,124,246,0.04); }
-
-    /* ── Device avatar ── */
-    .dev-avatar {
-        width:30px; height:30px; border-radius:50%;
-        display:inline-flex; align-items:center; justify-content:center;
-        font-size:0.65rem; font-weight:700; flex-shrink:0;
-    }
-
-    /* ── kWh progress bar ── */
-    .kwh-bar-wrap { display:flex; align-items:center; gap:0.5rem; }
-    .kwh-bar-bg   { flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
-    .kwh-bar-fill { height:100%; border-radius:3px; }
-    .kwh-bar-val  { font-size:0.75rem; font-weight:600; min-width:52px; color:var(--text-primary); }
-
-    /* ── Status badges ── */
-    .status-badge { display:inline-flex; align-items:center; padding:0.2rem 0.55rem; border-radius:20px; font-size:0.68rem; font-weight:600; }
-    .status-active  { background:#d1fae5; color:#059669; }
-    .status-standby { background:#fef9c3; color:#ca8a04; }
-    .status-off     { background:#fee2e2; color:#dc2626; }
-    [data-theme="dark"] .status-active  { background:rgba(5,150,105,0.2);  color:#6ee7b7; }
-    [data-theme="dark"] .status-standby { background:rgba(202,138,4,0.2);  color:#fde047; }
-    [data-theme="dark"] .status-off     { background:rgba(220,38,38,0.2);  color:#fca5a5; }
-    [data-theme="dark"] .dev-avatar.av-blue   { background:rgba(74,124,246,0.2)!important; color:#93b4fb!important; }
-    [data-theme="dark"] .dev-avatar.av-green  { background:rgba(16,185,129,0.2)!important; color:#6ee7b7!important; }
-    [data-theme="dark"] .dev-avatar.av-purple { background:rgba(139,92,246,0.2)!important; color:#c4b5fd!important; }
-    [data-theme="dark"] .dev-avatar.av-yellow { background:rgba(202,138,4,0.2)!important;  color:#fde047!important; }
-    [data-theme="dark"] .dev-avatar.av-red    { background:rgba(220,38,38,0.2)!important;  color:#fca5a5!important; }
-
-    /* ── Welcome banner close button ── */
-    .welcome-banner { position:relative; }
-    .welcome-close {
-        position:absolute; top:0.65rem; right:0.75rem;
-        width:26px; height:26px; border-radius:50%;
-        border:none; background:transparent;
-        cursor:pointer; font-size:1.1rem; line-height:1;
-        color:var(--text-muted); display:flex; align-items:center; justify-content:center;
-        transition:background 0.15s, color 0.15s;
-    }
-    .welcome-close:hover { background:var(--icon-btn-hover); color:var(--text-primary); }
-    </style>
-    @endsection
-
-    @section('content')
-
-        {{-- Page Header --}}
-        <div class="page-header">
-            <div>
-                <h1 class="page-title">Energy Dashboard</h1>
-                <p class="page-subtitle">Monitor your electricity consumption and savings</p>
             </div>
-            <a href="{{ route('devices.create') }}" class="btn-primary" style="text-decoration:none;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            <button class="welcome-close" id="welcomeToggle" title="Toggle banner" aria-label="Toggle banner" aria-expanded="true">
+                <svg id="bannerChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;transition:transform 0.3s;">
+                    <polyline points="18 15 12 9 6 15"/>
                 </svg>
-                Add Device
-            </a>
+            </button>
         </div>
-
-        {{-- Welcome Banner --}}
-        <div class="welcome-banner" id="welcomeBanner">
-            <div style="display:flex;align-items:center;justify-content:space-between;">
-                <div class="welcome-top" style="margin-bottom:0;">
-                    <div class="welcome-bolt">
-                        <svg viewBox="0 0 24 24"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
-                    </div>
-                    <div>
-                        <div class="welcome-heading">Welcome to <span>VoltWise!</span></div>
-                        <div class="welcome-user">Hi, {{ auth()->user()->name }}!</div>
-                    </div>
-                </div>
-                <button class="welcome-close" id="welcomeToggle" title="Toggle banner" aria-label="Toggle banner" aria-expanded="true">
-                    <svg id="bannerChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;transition:transform 0.3s;">
-                        <polyline points="18 15 12 9 6 15"/>
-                    </svg>
-                </button>
-            </div>
-            <div class="welcome-banner-body" id="welcomeBody">
+        <div class="welcome-banner-body" id="welcomeBody">
                 <p class="welcome-desc" style="margin-top:0.6rem;">
                     Get started by adding your electronic devices to begin monitoring your energy consumption and discover opportunities to save money.
                 </p>
@@ -519,8 +409,8 @@
                     </div>
                 </div>
             </div>
+            @endif
         </div>
-    </div>
 
     {{-- Points & Achievements Card --}}
     @php
@@ -596,7 +486,7 @@
         </div>
     </div>
 
-    {{-- Chart Cards --}}
+    {{-- Chart Cards (Top 5 Consumers + Energy by Category) --}}
 
     <div class="chart-row">
         <div class="card chart-card">
@@ -604,42 +494,35 @@
                 <div class="card-title">Top 5 Energy Consumers</div>
                 <div class="card-subtitle">Today's energy consumption by device</div>
                 @if($devices->isEmpty())
-            <div class="card chart-card" style="min-height:280px;">
-                <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
-                    <div class="card-title">Energy Distribution</div>
-                    <div class="card-subtitle">Share by device this week</div>
-                    <div style="flex:1;position:relative;min-height:200px;">
-                        <canvas id="energyDonutChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            @else
-            <div class="card chart-card">
-                <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
-                    <div class="card-title">7-Day Energy Trend</div>
-                    <div class="card-subtitle">Daily consumption per device (kWh)</div>
                     <div class="empty-state">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/>
+                            <line x1="9" y1="3" x2="9" y2="21"/>
                         </svg>
-                        <p>No devices added yet. Add some devices to see your trend.</p>
+                        <p>No devices added yet.</p>
                     </div>
+                @else
+                    <div class="list-block" style="margin-top:1rem;">
+                        @foreach($devices->sortByDesc('daily_energy_kwh')->take(5) as $device)
+                            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 0;border-bottom:1px solid var(--border);">
+                                <span>{{ $device->name }}</span>
+                                <span>{{ number_format($device->daily_energy_kwh, 2) }} kWh</span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <div class="card chart-card" style="min-height:280px;">
+            <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
+                <div class="card-title">Energy Distribution</div>
+                <div class="card-subtitle">Share by device this week</div>
+                <div style="flex:1;position:relative;min-height:200px;">
+                    <canvas id="energyDonutChart"></canvas>
                 </div>
             </div>
-            <div class="card chart-card">
-                <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
-                    <div class="card-title">Energy Distribution</div>
-                    <div class="card-subtitle">Share by device this week</div>
-                    <div class="empty-state">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
-                            <path d="M22 12A10 10 0 0 0 12 2v10z"/>
-                        </svg>
-                        <p>No data available</p>
-                    </div>
-                </div>
-            </div>
-            @endif
         </div>
     </div>
 

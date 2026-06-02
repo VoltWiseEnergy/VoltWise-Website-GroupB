@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UsageController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\PointsController;
+use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\RecommendationController;
 use App\Http\Controllers\Admin\MasterDeviceController;
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -52,6 +53,7 @@ Route::middleware('auth')->group(function () {
 
     // Points / Gamification Routes
     Route::get('/points', [PointsController::class, 'index'])->name('points.index');
+    Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard.index');
 
     // Device Routes
     Route::get('/devices',               [DeviceController::class, 'index'])->name('devices.index');

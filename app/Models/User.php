@@ -54,4 +54,15 @@ class User extends Authenticatable
     {
         return $this->hasMany(\App\Models\UserPointLog::class);
     }
+
+    /**
+     * Badges the user has earned.
+     */
+    public function badges()
+    {
+        return $this->belongsToMany(\App\Models\Badge::class, 'user_badges')
+                    ->withPivot('earned_at')
+                    ->withTimestamps()
+                    ->orderBy('user_badges.earned_at');
+    }
 }
