@@ -73,6 +73,9 @@ Route::middleware('auth')->group(function () {
         ->name('forum.show');
     Route::post('/forum/{id}/comment', [ForumPostController::class, 'storeComment'])
         ->name('forum.comment.store');
+    // PBI #55 — User: Report a post
+    Route::post('/forum/{id}/report', [ForumPostController::class, 'report'])
+        ->name('forum.report');
     // EDIT POST
     Route::get('/forum/{id}/edit', [ForumPostController::class, 'edit'])
         ->name('forum.edit');

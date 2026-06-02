@@ -75,7 +75,7 @@
                 <tr>
                     <td style="color:var(--text-faint);font-size:0.72rem;">{{ $posts->firstItem() + $i }}</td>
                     <td>
-                        <div style="font-weight:600;color:var(--text-primary);">{{ Str::limit($post->title, 40) }}</div>
+                        <a href="{{ route('forum.show', $post->id) }}" style="font-weight:600;color:var(--text-primary);text-decoration:none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">{{ Str::limit($post->title, 40) }}</a>
                     </td>
                     <td>{{ $post->user->name ?? 'Unknown' }}</td>
                     <td>

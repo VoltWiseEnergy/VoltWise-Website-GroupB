@@ -6,13 +6,15 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ForumPost;
 use App\Models\ForumComment;
+use App\Models\ForumReport;
 
 class ForumPostController extends Controller
 {
-    // Show all posts
+    // Show all posts (hide hidden posts from regular users)
     public function index()
     {
         $posts = ForumPost::with('user')
+            ->where('status', '!=', 'hidden')
             ->latest()
             ->get();
 
@@ -135,5 +137,46 @@ class ForumPostController extends Controller
         return redirect()
             ->route('forum.index')
             ->with('success', 'Post deleted successfully.');
+    }
+
+    // PBI #55 — User: Report a post
+    public function report(Request $request, $id)
+    {
+        $post = ForumPost::findOrFail($id);
+
+        // Cannot report own post
+        if ($post->user_id === auth()->id()) {
+            return redirect()->back()
+                ->with('error', 'You cannot report your own post.');
+        }
+
+        $request->validate([
+            'reason' => 'required|string|max:500',
+        ]);
+
+        // Prevent duplicate reports from the same user
+        $alreadyReported = ForumReport::where('post_id', $id)
+            ->where('user_id', auth()->id())
+            ->exists();
+
+        if ($alreadyReported) {
+            return redirect()->back()
+                ->with('error', 'You have already reported this post.');
+        }
+
+        ForumReport::create([
+            'post_id' => $id,
+            'user_id' => auth()->id(),
+            'reason' => $request->reason,
+            'status' => 'pending',
+        ]);
+
+        // Mark the post as reported
+        if ($post->status === 'published') {
+            $post->update(['status' => 'reported']);
+        }
+
+        return redirect()->back()
+            ->with('success', 'Post has been reported. Thank you for helping keep the community safe.');
     }
 }
