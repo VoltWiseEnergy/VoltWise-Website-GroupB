@@ -1,133 +1,137 @@
-    @extends('layouts.app')
+@extends('layouts.app')
 
-    @section('title', 'Dashboard')
-    @section('meta-desc', 'VoltWise Energy Dashboard - Monitor your electricity consumption')
+@section('title', 'Dashboard')
+@section('meta-desc', 'VoltWise Energy Dashboard - Monitor your electricity consumption')
 
-    @php
-        /* ---- Budget calculations ---- */
-        $budget      = auth()->user()->monthly_budget;         // null = not set
-        $monthlyCost = $monthlyCost ?? 0;
-        $pct         = ($budget && $budget > 0)
-                        ? min(round(($monthlyCost / $budget) * 100, 1), 100)
-                        : 0;
-        $fillClass   = $pct >= 90 ? 'danger' : ($pct >= 70 ? 'warn' : '');
-        $budgetFmt   = $budget ? 'Rp ' . number_format($budget, 0, ',', '.') : null;
-        $usedFmt     = 'Rp ' . number_format($monthlyCost, 0, ',', '.');
-    @endphp
-
-    @php
-        /* ---- Budget calculations ---- */
-        $budget      = auth()->user()->monthly_budget;         // null = not set
-        $monthlyCost = auth()->user()->devices()->sum('monthly_cost') ?? 0;                                    
-        $pct         = ($budget && $budget > 0)
+@php
+    $budget      = auth()->user()->monthly_budget;
+    $monthlyCost = auth()->user()->devices()->sum('monthly_cost') ?? 0;
+    $pct         = ($budget && $budget > 0)
                     ? min(round(($monthlyCost / $budget) * 100, 1), 100)
                     : 0;
-        $fillClass = ($pct <= 0)
-            ? 'danger'
-            : ($pct >= 90
-            ? 'danger'
-            : ($pct >= 75 ? 'warn' : 'safe'));
-        $budgetFmt   = $budget ? 'Rp ' . number_format($budget, 0, ',', '.') : null;
-        $usedFmt     = 'Rp ' . number_format($monthlyCost, 0, ',', '.');
-    @endphp
+    $fillClass   = $pct >= 90 ? 'danger' : ($pct >= 75 ? 'warn' : 'safe');
+    $budgetFmt   = $budget ? 'Rp ' . number_format($budget, 0, ',', '.') : null;
+    $usedFmt     = 'Rp ' . number_format($monthlyCost, 0, ',', '.');
+@endphp
 
-    @section('styles')
-    <style>
-    /* ── Chart legend pills ── */
-    .chart-legend { display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; }
-    .legend-item  { display:flex; align-items:center; gap:0.3rem; font-size:0.72rem; color:var(--text-muted); }
-    .legend-dot   { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+@section('styles')
+<style>
+/* ── Chart legend pills ── */
+.chart-legend { display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; }
+.legend-item  { display:flex; align-items:center; gap:0.3rem; font-size:0.72rem; color:var(--text-muted); }
+.legend-dot   { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
 
-    /* ── Consumers table ── */
-    .consumers-table { width:100%; border-collapse:collapse; }
-    .consumers-table thead th {
-        font-size:0.72rem; font-weight:600; color:var(--text-muted);
-        text-transform:uppercase; letter-spacing:0.06em;
-        padding:0.4rem 0.75rem; border-bottom:1px solid var(--border); text-align:left;
-    }
-    .consumers-table tbody td {
-        padding:0.6rem 0.75rem; font-size:0.8rem; color:var(--text-secondary);
-        border-bottom:1px solid var(--border); vertical-align:middle;
-    }
-    .consumers-table tbody tr:last-child td { border-bottom:none; }
-    .consumers-table tbody tr:hover td { background:rgba(74,124,246,0.04); }
+/* ── Consumers table ── */
+.consumers-table { width:100%; border-collapse:collapse; }
+.consumers-table thead th {
+    font-size:0.72rem; font-weight:600; color:var(--text-muted);
+    text-transform:uppercase; letter-spacing:0.06em;
+    padding:0.4rem 0.75rem; border-bottom:1px solid var(--border); text-align:left;
+}
+.consumers-table tbody td {
+    padding:0.6rem 0.75rem; font-size:0.8rem; color:var(--text-secondary);
+    border-bottom:1px solid var(--border); vertical-align:middle;
+}
+.consumers-table tbody tr:last-child td { border-bottom:none; }
+.consumers-table tbody tr:hover td { background:rgba(74,124,246,0.04); }
 
-    /* ── Device avatar ── */
-    .dev-avatar {
-        width:30px; height:30px; border-radius:50%;
-        display:inline-flex; align-items:center; justify-content:center;
-        font-size:0.65rem; font-weight:700; flex-shrink:0;
-    }
+/* ── Device avatar ── */
+.dev-avatar {
+    width:30px; height:30px; border-radius:50%;
+    display:inline-flex; align-items:center; justify-content:center;
+    font-size:0.65rem; font-weight:700; flex-shrink:0;
+}
 
-    /* ── kWh progress bar ── */
-    .kwh-bar-wrap { display:flex; align-items:center; gap:0.5rem; }
-    .kwh-bar-bg   { flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
-    .kwh-bar-fill { height:100%; border-radius:3px; }
-    .kwh-bar-val  { font-size:0.75rem; font-weight:600; min-width:52px; color:var(--text-primary); }
+/* ── kWh progress bar ── */
+.kwh-bar-wrap { display:flex; align-items:center; gap:0.5rem; }
+.kwh-bar-bg   { flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
+.kwh-bar-fill { height:100%; border-radius:3px; }
+.kwh-bar-val  { font-size:0.75rem; font-weight:600; min-width:52px; color:var(--text-primary); }
 
-    /* ── Status badges ── */
-    .status-badge { display:inline-flex; align-items:center; padding:0.2rem 0.55rem; border-radius:20px; font-size:0.68rem; font-weight:600; }
-    .status-active  { background:#d1fae5; color:#059669; }
-    .status-standby { background:#fef9c3; color:#ca8a04; }
-    .status-off     { background:#fee2e2; color:#dc2626; }
-    [data-theme="dark"] .status-active  { background:rgba(5,150,105,0.2);  color:#6ee7b7; }
-    [data-theme="dark"] .status-standby { background:rgba(202,138,4,0.2);  color:#fde047; }
-    [data-theme="dark"] .status-off     { background:rgba(220,38,38,0.2);  color:#fca5a5; }
-    [data-theme="dark"] .dev-avatar.av-blue   { background:rgba(74,124,246,0.2)!important; color:#93b4fb!important; }
-    [data-theme="dark"] .dev-avatar.av-green  { background:rgba(16,185,129,0.2)!important; color:#6ee7b7!important; }
-    [data-theme="dark"] .dev-avatar.av-purple { background:rgba(139,92,246,0.2)!important; color:#c4b5fd!important; }
-    [data-theme="dark"] .dev-avatar.av-yellow { background:rgba(202,138,4,0.2)!important;  color:#fde047!important; }
-    [data-theme="dark"] .dev-avatar.av-red    { background:rgba(220,38,38,0.2)!important;  color:#fca5a5!important; }
+/* ── Status badges ── */
+.status-badge { display:inline-flex; align-items:center; padding:0.2rem 0.55rem; border-radius:20px; font-size:0.68rem; font-weight:600; }
+.status-active  { background:#d1fae5; color:#059669; }
+.status-standby { background:#fef9c3; color:#ca8a04; }
+.status-off     { background:#fee2e2; color:#dc2626; }
+[data-theme="dark"] .status-active  { background:rgba(5,150,105,0.2);  color:#6ee7b7; }
+[data-theme="dark"] .status-standby { background:rgba(202,138,4,0.2);  color:#fde047; }
+[data-theme="dark"] .status-off     { background:rgba(220,38,38,0.2);  color:#fca5a5; }
+[data-theme="dark"] .dev-avatar.av-blue   { background:rgba(74,124,246,0.2)!important; color:#93b4fb!important; }
+[data-theme="dark"] .dev-avatar.av-green  { background:rgba(16,185,129,0.2)!important; color:#6ee7b7!important; }
+[data-theme="dark"] .dev-avatar.av-purple { background:rgba(139,92,246,0.2)!important; color:#c4b5fd!important; }
+[data-theme="dark"] .dev-avatar.av-yellow { background:rgba(202,138,4,0.2)!important;  color:#fde047!important; }
+[data-theme="dark"] .dev-avatar.av-red    { background:rgba(220,38,38,0.2)!important;  color:#fca5a5!important; }
 
-    /* ── Welcome banner close button ── */
-    .welcome-banner { position:relative; }
-    .welcome-close {
-        position:absolute; top:0.65rem; right:0.75rem;
-        width:26px; height:26px; border-radius:50%;
-        border:none; background:transparent;
-        cursor:pointer; font-size:1.1rem; line-height:1;
-        color:var(--text-muted); display:flex; align-items:center; justify-content:center;
-        transition:background 0.15s, color 0.15s;
-    }
-    .welcome-close:hover { background:var(--icon-btn-hover); color:var(--text-primary); }
-    </style>
-    @endsection
+/* ── Welcome banner close button ── */
+.welcome-banner { position:relative; }
+.welcome-close {
+    position:absolute; top:0.65rem; right:0.75rem;
+    width:26px; height:26px; border-radius:50%;
+    border:none; background:transparent;
+    cursor:pointer; font-size:1.1rem; line-height:1;
+    color:var(--text-muted); display:flex; align-items:center; justify-content:center;
+    transition:background 0.15s, color 0.15s;
+}
+.welcome-close:hover { background:var(--icon-btn-hover); color:var(--text-primary); }
 
-    @section('content')
+/* ── Points Card ── */
+.points-card { margin-bottom:1.5rem; }
+.points-card-inner { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:1.25rem; }
+.points-left { flex:1; min-width:0; }
+.points-total { font-size:2rem; font-weight:800; letter-spacing:-0.04em; color:var(--text-primary); line-height:1; margin-bottom:0.25rem; }
+.points-total span { font-size:1rem; font-weight:500; color:var(--text-muted); margin-left:4px; }
+.level-badge { display:inline-flex; align-items:center; gap:0.4rem; padding:0.25rem 0.7rem; border-radius:99px; font-size:0.78rem; font-weight:700; margin-bottom:0.75rem; }
+.level-track { width:100%; height:8px; background:var(--budget-track-bg); border-radius:99px; overflow:hidden; margin-bottom:0.4rem; }
+.level-fill { height:100%; border-radius:99px; transition:width 0.9s cubic-bezier(.4,0,.2,1); }
+.level-meta { font-size:0.72rem; color:var(--text-faint); }
+.points-right { display:flex; flex-direction:column; align-items:flex-end; gap:0.5rem; flex-shrink:0; }
+.awards-list { display:flex; flex-direction:column; gap:0.35rem; }
+.award-chip { display:inline-flex; align-items:center; gap:0.4rem; padding:0.22rem 0.65rem; border-radius:99px; font-size:0.72rem; font-weight:600; background:rgba(74,124,246,0.1); color:var(--blue-600); border:1px solid rgba(74,124,246,0.2); }
+.award-chip.green { background:rgba(16,185,129,0.1); color:#10b981; border-color:rgba(16,185,129,0.2); }
+.award-chip.gold  { background:rgba(245,158,11,0.1); color:#d97706; border-color:rgba(245,158,11,0.2); }
+[data-theme="dark"] .award-chip { color:#93b4fb; }
+[data-theme="dark"] .award-chip.green { color:#6ee7b7; }
+[data-theme="dark"] .award-chip.gold  { color:#fde047; }
+.points-link { font-size:0.78rem; font-weight:600; color:var(--blue-600); text-decoration:none; display:inline-flex; align-items:center; gap:3px; }
+.points-link:hover { text-decoration:underline; }
+</style>
+@endsection
 
-        {{-- Page Header --}}
-        <div class="page-header">
-            <div>
-                <h1 class="page-title">Energy Dashboard</h1>
-                <p class="page-subtitle">Monitor your electricity consumption and savings</p>
-            </div>
-            <a href="{{ route('devices.create') }}" class="btn-primary" style="text-decoration:none;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                </svg>
-                Add Device
-            </a>
+@section('content')
+
+    {{-- Page Header --}}
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Energy Dashboard</h1>
+            <p class="page-subtitle">Monitor your electricity consumption and savings</p>
         </div>
+        <a href="{{ route('devices.create') }}" class="btn-primary" style="text-decoration:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Add Device
+        </a>
+    </div>
 
-        {{-- Welcome Banner --}}
-        <div class="welcome-banner" id="welcomeBanner">
-            <div style="display:flex;align-items:center;justify-content:space-between;">
-                <div class="welcome-top" style="margin-bottom:0;">
-                    <div class="welcome-bolt">
-                        <svg viewBox="0 0 24 24"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
-                    </div>
-                    <div>
-                        <div class="welcome-heading">Welcome to <span>VoltWise!</span></div>
-                        <div class="welcome-user">Hi, {{ auth()->user()->name }}!</div>
-                    </div>
+    {{-- Welcome Banner --}}
+    <div class="welcome-banner" id="welcomeBanner">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div class="welcome-top" style="margin-bottom:0;">
+                <div class="welcome-bolt">
+                    <svg viewBox="0 0 24 24"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
                 </div>
-                <button class="welcome-close" id="welcomeToggle" title="Toggle banner" aria-label="Toggle banner" aria-expanded="true">
-                    <svg id="bannerChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;transition:transform 0.3s;">
-                        <polyline points="18 15 12 9 6 15"/>
-                    </svg>
-                </button>
+                <div>
+                    <div class="welcome-heading">Welcome to <span>VoltWise!</span></div>
+                    <div class="welcome-user">Hi, {{ auth()->user()->name }}!</div>
+                </div>
             </div>
-            <div class="welcome-banner-body" id="welcomeBody">
+            <button class="welcome-close" id="welcomeToggle" title="Toggle banner" aria-label="Toggle banner" aria-expanded="true">
+                <svg id="bannerChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;transition:transform 0.3s;">
+                    <polyline points="18 15 12 9 6 15"/>
+                </svg>
+            </button>
+        </div>
+        <div class="welcome-banner-body" id="welcomeBody">
                 <p class="welcome-desc" style="margin-top:0.6rem;">
                     Get started by adding your electronic devices to begin monitoring your energy consumption and discover opportunities to save money.
                 </p>
@@ -405,43 +409,122 @@
                     </div>
                 </div>
             </div>
-            <div class="card chart-card" style="min-height:280px;">
-                <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
-                    <div class="card-title">Energy Distribution</div>
-                    <div class="card-subtitle">Share by device this week</div>
-                    <div style="flex:1;position:relative;min-height:200px;">
-                        <canvas id="energyDonutChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            @else
-            <div class="card chart-card">
-                <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
-                    <div class="card-title">7-Day Energy Trend</div>
-                    <div class="card-subtitle">Daily consumption per device (kWh)</div>
-                    <div class="empty-state">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                        </svg>
-                        <p>No devices added yet. Add some devices to see your trend.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="card chart-card">
-                <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
-                    <div class="card-title">Energy Distribution</div>
-                    <div class="card-subtitle">Share by device this week</div>
-                    <div class="empty-state">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
-                            <path d="M22 12A10 10 0 0 0 12 2v10z"/>
-                        </svg>
-                        <p>No data available</p>
-                    </div>
-                </div>
-            </div>
             @endif
         </div>
+
+    {{-- Points & Achievements Card --}}
+    @php
+        $levelColor = match($level['current']['name']) {
+            'Silver'   => '#94a3b8',
+            'Gold'     => '#f59e0b',
+            'Platinum' => '#8b5cf6',
+            default    => '#cd7f32',
+        };
+        $awardLabels = [
+            'consistent_logging' => ['label' => '+5 pts — Logged usage today',   'cls' => 'green'],
+            'under_budget'       => ['label' => '+50 pts — Staying under budget', 'cls' => 'gold'],
+            'low_usage'          => ['label' => '+10 pts — Low-usage day',        'cls' => 'green'],
+            'very_low_usage'     => ['label' => '+20 pts — Very low usage day',   'cls' => 'gold'],
+        ];
+    @endphp
+    <div class="card points-card" id="points-card">
+        <div class="card-body">
+            <div class="points-card-inner">
+                <div class="points-left">
+                    <div class="stat-header" style="margin-bottom:0.6rem">
+                        <span class="stat-label">
+                            <svg style="width:13px;height:13px;display:inline;vertical-align:-1px;margin-right:4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                            Points &amp; Level
+                        </span>
+                        <div class="stat-icon icon-purple">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="points-total" id="points-total-display">{{ number_format($totalPoints) }}<span>pts</span></div>
+
+                    <span class="level-badge" style="background:{{ $levelColor }}22; color:{{ $levelColor }}; border:1px solid {{ $levelColor }}44;">
+                        {{ $level['current']['emoji'] }} {{ $level['current']['name'] }}
+                    </span>
+
+                    <div class="level-track" role="progressbar" aria-valuenow="{{ $level['progress'] }}" aria-valuemin="0" aria-valuemax="100">
+                        <div class="level-fill" id="level-fill-bar" style="width:{{ $level['progress'] }}%; background:{{ $levelColor }};"></div>
+                    </div>
+                    <div class="level-meta">
+                        @if($level['next'])
+                            {{ $level['points_to_next'] }} pts to {{ $level['next']['emoji'] }} {{ $level['next']['name'] }}
+                        @else
+                            🏆 Maximum level reached!
+                        @endif
+                    </div>
+                </div>
+
+                <div class="points-right">
+                    @if(count($todayAwards) > 0)
+                        <div style="font-size:0.72rem;font-weight:600;color:var(--text-muted);margin-bottom:0.25rem;text-align:right;">Today's Achievements</div>
+                        <div class="awards-list">
+                            @foreach($todayAwards as $event => $pts)
+                                @php $info = $awardLabels[$event] ?? ['label' => "+{$pts} pts", 'cls' => '']; @endphp
+                                <span class="award-chip {{ $info['cls'] }}">
+                                    ✓ {{ $info['label'] }}
+                                </span>
+                            @endforeach
+                        </div>
+                    @else
+                        <div style="font-size:0.78rem;color:var(--text-faint);text-align:right;">Log your usage today<br>to start earning points!</div>
+                    @endif
+                    <a href="{{ route('points.index') }}" class="points-link" style="margin-top:0.5rem;">
+                        View full history
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Chart Cards (Top 5 Consumers + Energy by Category) --}}
+
+    <div class="chart-row">
+        <div class="card chart-card">
+            <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
+                <div class="card-title">Top 5 Energy Consumers</div>
+                <div class="card-subtitle">Today's energy consumption by device</div>
+                @if($devices->isEmpty())
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/>
+                            <line x1="9" y1="3" x2="9" y2="21"/>
+                        </svg>
+                        <p>No devices added yet.</p>
+                    </div>
+                @else
+                    <div class="list-block" style="margin-top:1rem;">
+                        @foreach($devices->sortByDesc('daily_energy_kwh')->take(5) as $device)
+                            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 0;border-bottom:1px solid var(--border);">
+                                <span>{{ $device->name }}</span>
+                                <span>{{ number_format($device->daily_energy_kwh, 2) }} kWh</span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <div class="card chart-card" style="min-height:280px;">
+            <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
+                <div class="card-title">Energy Distribution</div>
+                <div class="card-subtitle">Share by device this week</div>
+                <div style="flex:1;position:relative;min-height:200px;">
+                    <canvas id="energyDonutChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 
         {{-- All Devices Table --}}
         @if($devices->isNotEmpty())

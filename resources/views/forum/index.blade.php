@@ -2,6 +2,28 @@
 
 @section('title', 'Forum')
 
+@section('styles')
+<style>
+.verified-badge-sm {
+    display:inline-flex;
+    align-items:center;
+    gap:3px;
+    background:linear-gradient(135deg, #dbeafe, #ede9fe);
+    color:#4A7CF6;
+    padding:2px 8px;
+    border-radius:20px;
+    font-size:0.65rem;
+    font-weight:700;
+    margin-left:6px;
+    vertical-align:middle;
+}
+[data-theme="dark"] .verified-badge-sm {
+    background:rgba(74,124,246,0.18);
+    color:#93b4fb;
+}
+</style>
+@endsection
+
 @section('content')
 
 <div class="page-header">
@@ -48,6 +70,9 @@
 
                             <h2 style="font-size:1.1rem; font-weight:700; margin-bottom:0.75rem;">
                                 {{ $post->title }}
+                                @if($post->is_verified)
+                                    <span class="verified-badge-sm">✓ Verified</span>
+                                @endif
                             </h2>
 
                             <p style="color:var(--text-muted); line-height:1.6;">

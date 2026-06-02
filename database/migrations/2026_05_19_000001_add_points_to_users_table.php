@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('forum_reports', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+            // Running total of gamification points earned by the user
+            $table->unsignedInteger('points')->default(0)->after('monthly_budget');
         });
     }
 
@@ -22,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('forum_reports');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('points');
+        });
     }
 };
