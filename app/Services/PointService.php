@@ -6,9 +6,11 @@ use App\Models\User;
 use App\Models\UsageLog;
 use App\Models\UserPointLog;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Session;
 
 class PointService
 {
+    public function __construct(private BadgeService $badgeService) {}
     /**
      * Point values per event type.
      */
@@ -67,6 +69,20 @@ class PointService
                         $awarded['low_usage'] = self::POINTS['low_usage'];
                     }
                 }
+            }
+        }
+
+        // ── Badge checking ──────────────────────────────────────────────────
+        if (!empty($awarded)) {
+            $newBadges = $this->badgeService->checkAndAwardBadges($user);
+            if (!empty($newBadges)) {
+                // Store for toast notification; merge with any already in flash
+                $existing = Session::get('new_badges', []);
+                $merged   = array_merge(
+                    $existing,
+                    array_map(fn($b) => ['name' => $b->name, 'emoji' => $b->emoji], $newBadges)
+                );
+                Session::flash('new_badges', $merged);
             }
         }
 
