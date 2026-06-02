@@ -1,57 +1,118 @@
 <?php
  
-namespace App\Services;
+namespace App\Http\Controllers;
  
-class SimulatorService
+use App\Models\Device;
+use App\Models\SimulatorScenario;
+use App\Models\UsageLog;
+use App\Services\SimulatorService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+ 
+class SimulatorController extends Controller
 {
-    // Hitung kWh dari wattage dan jam pemakaian
-    public function calculateKwh(int $wattage, float $hours): float
+    public function __construct(private SimulatorService $simulator) {}
+ 
+    // ─────────────────────────────────────────────────────────
+    // PBI #56 — Tampilkan form input skenario
+    // GET /simulator
+    // ─────────────────────────────────────────────────────────
+    public function index()
     {
-        return round(($wattage * $hours) / 1000, 3);
+        $userId  = Auth::id();
+        $devices = Device::where('user_id', $userId)->get();
+ 
+        // Ambil rata-rata jam aktual 7 hari dari usage_logs (Sprint 1)
+        $avgUsage = UsageLog::where('user_id', $userId)
+            ->where('usage_date', '>=', Carbon::today()->subDays(6))
+            ->get()
+            ->groupBy('device_id')
+            ->map(fn($logs) => round($logs->avg('hours'), 2));
+ 
+        // Ambil skenario tersimpan user
+        $scenarios = SimulatorScenario::where('user_id', $userId)
+            ->latest()
+            ->get();
+ 
+        return view('simulator.index', compact('devices', 'avgUsage', 'scenarios'));
     }
  
-    // Hitung cost dari kWh dan tariff
-    public function calculateCost(float $kwh, float $tariff): float
+    // ─────────────────────────────────────────────────────────
+    // PBI #56 + #57 — Simpan skenario dan hitung estimasi
+    // POST /simulator
+    // ─────────────────────────────────────────────────────────
+    public function store(Request $request)
     {
-        return round($kwh * $tariff, 0);
+        $request->validate([
+            'name'           => 'required|string|max:100',
+            'device_id'      => 'required|integer|exists:devices,id',
+            'scenario_hours' => 'required|numeric|min:0|max:24',
+        ]);
+ 
+        $userId = Auth::id();
+        $device = Device::where('id', $request->device_id)
+                        ->where('user_id', $userId)
+                        ->firstOrFail();
+ 
+        // Ambil rata-rata jam aktual dari usage_logs
+        $currentHours = UsageLog::where('user_id', $userId)
+            ->where('device_id', $device->id)
+            ->where('usage_date', '>=', Carbon::today()->subDays(6))
+            ->avg('hours') ?? 0;
+ 
+        // Mock tariff — ganti ke Tariff::latest()->value('rate') pas Narindra merge
+        $tariff = 1444;
+ 
+        SimulatorScenario::create([
+            'user_id'        => $userId,
+            'name'           => $request->name,
+            'device_id'      => $device->id,
+            'device_name'    => $device->name,
+            'wattage'        => $device->wattage,
+            'current_hours'  => round($currentHours, 2),
+            'scenario_hours' => $request->scenario_hours,
+            'tariff'         => $tariff,
+        ]);
+ 
+        return redirect()->route('simulator.index')
+            ->with('success', "Scenario '{$request->name}' Saved!");
     }
  
-    // Hitung penghematan antara current dan skenario
-    public function calculateSaving(float $currentCost, float $scenarioCost): array
+    // ─────────────────────────────────────────────────────────
+    // PBI #58 — Tampilkan halaman comparison
+    // GET /simulator/{scenario}
+    // ─────────────────────────────────────────────────────────
+    public function show(SimulatorScenario $scenario)
     {
-        $saving  = $currentCost - $scenarioCost;
-        $percent = $currentCost > 0
-            ? round(($saving / $currentCost) * 100, 1)
-            : 0;
+        // Pastikan hanya punya sendiri yang bisa diakses
+        if ($scenario->user_id !== Auth::id()) {
+            abort(403);
+        }
  
-        return [
-            'amount'  => round($saving, 0),
-            'percent' => $percent,
-            'isPositive' => $saving >= 0, // true = hemat, false = boros
-        ];
+        $result = $this->simulator->compute(
+            $scenario->wattage,
+            $scenario->current_hours,
+            $scenario->scenario_hours,
+            $scenario->tariff,
+        );
+ 
+        return view('simulator.comparison', compact('scenario', 'result'));
     }
  
-    // Hitung semua sekaligus untuk satu device
-    public function compute(int $wattage, float $currentHours, float $scenarioHours, float $tariff): array
+    // ─────────────────────────────────────────────────────────
+    // Hapus skenario
+    // DELETE /simulator/{scenario}
+    // ─────────────────────────────────────────────────────────
+    public function destroy(SimulatorScenario $scenario)
     {
-        $currentKwh  = $this->calculateKwh($wattage, $currentHours);
-        $scenarioKwh = $this->calculateKwh($wattage, $scenarioHours);
-        $currentCost  = $this->calculateCost($currentKwh, $tariff);
-        $scenarioCost = $this->calculateCost($scenarioKwh, $tariff);
-        $saving       = $this->calculateSaving($currentCost, $scenarioCost);
+        if ($scenario->user_id !== Auth::id()) {
+            abort(403);
+        }
  
-        return [
-            'current' => [
-                'hours' => $currentHours,
-                'kwh'   => $currentKwh,
-                'cost'  => $currentCost,
-            ],
-            'scenario' => [
-                'hours' => $scenarioHours,
-                'kwh'   => $scenarioKwh,
-                'cost'  => $scenarioCost,
-            ],
-            'saving' => $saving,
-        ];
+        $scenario->delete();
+ 
+        return redirect()->route('simulator.index')
+            ->with('success', 'Skenario berhasil dihapus.');
     }
 }

@@ -10,6 +10,7 @@ use App\Http\Controllers\RecommendationController;
 use App\Http\Controllers\Admin\MasterDeviceController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Forum\ForumPostController;
+use App\Http\Controllers\SimulatorController;
 // Main Page
 Route::get('/', function () {
     return view('welcome');
@@ -63,6 +64,11 @@ Route::middleware('auth')->group(function () {
         ->name('forum.show');
     Route::post('/forum/{id}/comment', [ForumPostController::class, 'storeComment'])
         ->name('forum.comment.store');
+    // Energy Cost Simulator Routes
+    Route::get('/simulator',              [SimulatorController::class, 'index'])->name('simulator.index');   // PBI #56
+    Route::post('/simulator',             [SimulatorController::class, 'store'])->name('simulator.store');   // PBI #56 + #57
+    Route::get('/simulator/{scenario}',   [SimulatorController::class, 'show'])->name('simulator.show');    // PBI #58
+    Route::delete('/simulator/{scenario}',[SimulatorController::class, 'destroy'])->name('simulator.destroy');
     /*
     |--------------------------------------------------------------------------
     | Admin Specific Routes
