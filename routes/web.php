@@ -90,6 +90,12 @@ Route::middleware('auth')->group(function () {
     // DELETE POST
     Route::delete('/forum/{id}', [ForumPostController::class, 'destroy'])
         ->name('forum.destroy');
+    // POST VOTING
+    Route::post('/forum/{id}/upvote', [ForumPostController::class, 'upvote'])
+        ->name('forum.upvote');
+
+    Route::post('/forum/{id}/downvote', [ForumPostController::class, 'downvote'])
+        ->name('forum.downvote');
     /*
     |--------------------------------------------------------------------------
     | Admin Specific Routes
