@@ -513,7 +513,6 @@
                     </svg>
                     Leaderboard
                 </a>
-                <a href="#" class="nav-item {{ request()->is('analytics*') ? 'active' : '' }}">
                 <a href="#"
                    class="nav-item {{ request()->is('analytics*') ? 'active' : '' }}">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
