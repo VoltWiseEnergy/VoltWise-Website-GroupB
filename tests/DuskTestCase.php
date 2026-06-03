@@ -23,17 +23,6 @@ abstract class DuskTestCase extends BaseTestCase
     }
 
     /**
-     * The base URL for Dusk browser tests.
-     * Hardcoded to avoid env-loading order issues on Windows where
-     * APP_URL from .env may override .env.dusk.local.
-     */
-    public function baseUrl(): string
-    {
-        return 'http://127.0.0.1:8000';
-    }
-
-
-    /**
      * Create the RemoteWebDriver instance.
      */
     protected function driver(): RemoteWebDriver
