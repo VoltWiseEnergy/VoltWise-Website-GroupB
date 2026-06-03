@@ -99,6 +99,7 @@
 
             display: grid;
             grid-template-columns: 1fr 1fr;
+            overflow: hidden;
 
             transition: background 0.25s, color 0.25s;
         }
@@ -246,13 +247,18 @@
         ============================================= */
         .panel-right {
             background: var(--bg-right);
-            display:flex; flex-direction:column;
-            justify-content:center; align-items:center;
-            padding:3rem 2rem; overflow-y:auto;
+            overflow-y: auto;
             transition: background 0.25s;
         }
+        .form-container-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100%;
+            padding: 2.5rem 2rem;
+        }
         .form-container {
-            width:100%; max-width:400px;
+            width: 100%; max-width: 400px;
             animation: fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
         }
         @keyframes fadeUp {
@@ -434,8 +440,10 @@
 
 {{-- RIGHT PANEL --}}
 <div class="panel-right">
-    <div class="form-container">
-        @yield('form-content')
+    <div class="form-container-wrapper">
+        <div class="form-container">
+            @yield('form-content')
+        </div>
     </div>
 </div>
 
