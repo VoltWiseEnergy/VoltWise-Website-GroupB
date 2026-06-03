@@ -6,10 +6,15 @@ use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UsageController;
 use App\Http\Controllers\DeviceController;
+use App\Http\Controllers\PointsController;
+use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\RecommendationController;
 use App\Http\Controllers\Admin\MasterDeviceController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Forum\ForumPostController;
+use App\Http\Controllers\SimulatorController;
+use App\Http\Controllers\Admin\ForumModerationController;
+
 // Main Page
 Route::get('/', function () {
     return view('welcome');
@@ -46,6 +51,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/usage/override',[UsageController::class, 'override'])->name('usage.override');
     Route::get('/usage/history',  [UsageController::class, 'history'])->name('usage.history');
     Route::get('/usage/today',    [UsageController::class, 'today'])->name('usage.today');
+
+    // Points / Gamification Routes
+    Route::get('/points', [PointsController::class, 'index'])->name('points.index');
+    Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard.index');
+
     // Device Routes
     Route::get('/devices',               [DeviceController::class, 'index'])->name('devices.index');
     Route::get('/devices/create',        [DeviceController::class, 'create'])->name('devices.create');
@@ -55,6 +65,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/devices/{device}',   [DeviceController::class, 'destroy'])->name('devices.destroy');
     // Recommendation Routes
     Route::get('/recommendations', [RecommendationController::class, 'index'])->name('recommendations.index');
+    Route::post('/recommendations/toggle', [RecommendationController::class, 'toggle'])->name('recommendations.toggle');
     // Forum Routes
     Route::get('/forum', [ForumPostController::class, 'index'])->name('forum.index');
     Route::get('/forum/create', [ForumPostController::class, 'create'])->name('forum.create');
@@ -63,6 +74,14 @@ Route::middleware('auth')->group(function () {
         ->name('forum.show');
     Route::post('/forum/{id}/comment', [ForumPostController::class, 'storeComment'])
         ->name('forum.comment.store');
+    // Energy Cost Simulator Routes
+    Route::get('/simulator',              [SimulatorController::class, 'index'])->name('simulator.index');   // PBI #56
+    Route::post('/simulator',             [SimulatorController::class, 'store'])->name('simulator.store');   // PBI #56 + #57
+    Route::get('/simulator/{scenario}',   [SimulatorController::class, 'show'])->name('simulator.show');    // PBI #58
+    Route::delete('/simulator/{scenario}',[SimulatorController::class, 'destroy'])->name('simulator.destroy');
+    // PBI #55 — User: Report a post
+    Route::post('/forum/{id}/report', [ForumPostController::class, 'report'])
+        ->name('forum.report');
     // EDIT POST
     Route::get('/forum/{id}/edit', [ForumPostController::class, 'edit'])
         ->name('forum.edit');
@@ -85,5 +104,11 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
         Route::resource('master-devices', MasterDeviceController::class);
+        // Forum Moderation (PBI #52-55)
+        Route::get('/forum', [ForumModerationController::class, 'index'])->name('forum.index');
+        Route::get('/forum/reports', [ForumModerationController::class, 'reports'])->name('forum.reports');
+        Route::post('/forum/reports/{report}/review', [ForumModerationController::class, 'reviewReport'])->name('forum.reports.review');
+        Route::delete('/forum/{post}', [ForumModerationController::class, 'destroy'])->name('forum.destroy');
+        Route::post('/forum/{post}/verify', [ForumModerationController::class, 'toggleVerified'])->name('forum.verify');
     });
 });

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\ForumComment;
 use App\Models\ForumPostVote;
+use App\Models\ForumReport;
 
 class ForumPost extends Model
 {
@@ -13,7 +14,13 @@ class ForumPost extends Model
         'user_id',
         'title',
         'content',
-        'votes'
+        'votes',
+        'status',
+        'is_verified',
+    ];
+
+    protected $casts = [
+        'is_verified' => 'boolean',
     ];
 
     public function user()
@@ -29,5 +36,10 @@ class ForumPost extends Model
     public function uservotes()
     {
         return $this->hasMany(ForumPostVote::class, 'forum_post_id');
+    }
+}
+    public function reports()
+    {
+        return $this->hasMany(ForumReport::class, 'post_id');
     }
 }

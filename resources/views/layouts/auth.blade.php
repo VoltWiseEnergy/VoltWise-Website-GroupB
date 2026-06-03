@@ -81,7 +81,13 @@
         /* =============================================
            BASE LAYOUT
         ============================================= */
-        html {
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100vh;
+
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             font-size: 16px;
             -webkit-font-smoothing: antialiased;
@@ -90,25 +96,39 @@
         body {
             background: var(--bg-right);
             color: var(--text-primary);
-            min-height: 100vh;
+
             display: grid;
             grid-template-columns: 1fr 1fr;
+
             transition: background 0.25s, color 0.25s;
         }
 
+        .panel-left,
+        .panel-right {
+            height: 100vh;
+        }
         /* =============================================
            LEFT PANEL
         ============================================= */
         .panel-left {
-            background: linear-gradient(160deg, #4A7CF6 0%, #3563e9 50%, #1d4ed8 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 3.5rem 4rem;
-            position: relative;
-            overflow: hidden;
-        }
+            height: 100vh;
+
+            background: linear-gradient(
+                160deg,
+                #4A7CF6 0%,
+                #3563e9 50%,
+                #1d4ed8 100%
+        );
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+
+        padding: 3.5rem 4rem;
+        position: relative;
+        overflow: hidden;
+    }
 
         /* ---- Floating ball keyframes ---- */
         @keyframes float1 {

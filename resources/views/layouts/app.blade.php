@@ -468,6 +468,14 @@
                     </svg>
                     Master Devices
                 </a>
+                
+                <a href="{{ route('admin.forum.index') }}"
+                   class="nav-item {{ request()->routeIs('admin.forum.*') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
+                    </svg>
+                    Forum Moderation
+                </a>
             @else
                 <a href="{{ url('/dashboard') }}"
                    class="nav-item {{ request()->is('dashboard') ? 'active' : '' }}">
@@ -492,6 +500,18 @@
                         <line x1="3" y1="10" x2="21" y2="10"/>
                     </svg>
                     Daily Tracker
+                </a>
+                <a href="{{ route('points.index') }}" class="nav-item {{ request()->routeIs('points.*') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                    My Points
+                </a>
+                <a href="{{ route('leaderboard.index') }}" class="nav-item {{ request()->routeIs('leaderboard.*') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
+                    </svg>
+                    Leaderboard
                 </a>
                 <a href="#"
                    class="nav-item {{ request()->is('analytics*') ? 'active' : '' }}">
@@ -519,6 +539,15 @@
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                     </svg>
                     Forum
+                    </a>
+                <a href="{{ route('simulator.index') }}"
+                   class="nav-item {{ request()->routeIs('simulator.*') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                    </svg>
+                    Energy Simulator
                 </a>
             @endif
         </nav>

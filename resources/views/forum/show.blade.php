@@ -2,7 +2,100 @@
 
 @section('title', $post->title)
 
+@section('styles')
+<style>
+.verified-badge {
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    background:linear-gradient(135deg, #dbeafe, #ede9fe);
+    color:#4A7CF6;
+    padding:3px 10px;
+    border-radius:20px;
+    font-size:0.72rem;
+    font-weight:700;
+    letter-spacing:0.02em;
+}
+[data-theme="dark"] .verified-badge {
+    background:rgba(74,124,246,0.18);
+    color:#93b4fb;
+}
+.report-overlay {
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.45);
+    z-index:999;
+    justify-content:center;
+    align-items:center;
+}
+.report-overlay.active { display:flex; }
+.report-modal {
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:1.5rem;
+    width:100%;
+    max-width:420px;
+    box-shadow:0 12px 40px rgba(0,0,0,0.2);
+}
+.report-modal h3 { margin-bottom:1rem; font-size:1rem; }
+.report-select {
+    width:100%;
+    padding:0.6rem 0.75rem;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:var(--bg-base);
+    color:var(--text-primary);
+    font-family:inherit;
+    font-size:0.875rem;
+    margin-bottom:1rem;
+}
+.report-btn-row { display:flex; gap:0.5rem; justify-content:flex-end; }
+.report-cancel {
+    padding:0.5rem 1rem;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:transparent;
+    color:var(--text-muted);
+    cursor:pointer;
+    font-family:inherit;
+    font-size:0.8125rem;
+}
+.report-submit {
+    padding:0.5rem 1rem;
+    border-radius:8px;
+    border:none;
+    background:#dc2626;
+    color:#fff;
+    cursor:pointer;
+    font-family:inherit;
+    font-weight:600;
+    font-size:0.8125rem;
+}
+.alert-bar {
+    padding:0.75rem 1rem;
+    border-radius:8px;
+    margin-bottom:1rem;
+    font-size:0.85rem;
+    font-weight:500;
+}
+.alert-success { background:#d1fae5; color:#065f46; }
+.alert-error   { background:#fee2e2; color:#991b1b; }
+[data-theme="dark"] .alert-success { background:rgba(5,150,105,0.2); color:#6ee7b7; }
+[data-theme="dark"] .alert-error   { background:rgba(220,38,38,0.2); color:#fca5a5; }
+</style>
+@endsection
+
 @section('content')
+
+{{-- Flash messages --}}
+@if(session('success'))
+    <div class="alert-bar alert-success">{{ session('success') }}</div>
+@endif
+@if(session('error'))
+    <div class="alert-bar alert-error">{{ session('error') }}</div>
+@endif
 
 <div class="card">
     <div class="card-body">
@@ -10,27 +103,38 @@
         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
 
             <div>
-                <h2>{{ $post->title }}</h2>
+                <h2>
+                    {{ $post->title }}
+                    @if($post->is_verified)
+                        <span class="verified-badge">✓ Verified</span>
+                    @endif
+                </h2>
 
                 <small style="color:var(--text-faint);">
                     Posted by {{ $post->user->name }}
+                    • {{ $post->created_at->diffForHumans() }}
                 </small>
             </div>
 
-            @if(auth()->id() == $post->user_id)
+            <div style="display:flex; gap:0.5rem; align-items:center;">
 
-                <div style="position:relative;">
-
+                {{-- Report button (visible to everyone except post owner) --}}
+                @if(auth()->id() !== $post->user_id)
                     <button
-                        onclick="toggleMenu(event)"
+                        onclick="document.getElementById('reportOverlay').classList.add('active')"
                         style="
                             background:none;
-                            border:none;
+                            border:1px solid var(--border);
+                            border-radius:8px;
+                            padding:6px 12px;
                             cursor:pointer;
-                            font-size:22px;
+                            font-size:13px;
                             color:var(--text-muted);
+                            display:flex;
+                            align-items:center;
+                            gap:4px;
                         ">
-                        ⋮
+                        🚩 Report
                     </button>
 
                     <div
@@ -103,12 +207,85 @@
                             </button>
 
                         </form>
+                @endif
+
+                {{-- Owner menu (edit / delete) --}}
+                @if(auth()->id() == $post->user_id)
+
+                    <div style="position:relative;">
+
+                        <button
+                            onclick="toggleMenu(event)"
+                            style="
+                                background:none;
+                                border:none;
+                                cursor:pointer;
+                                font-size:22px;
+                                color:var(--text-muted);
+                            ">
+                            ⋮
+                        </button>
+
+                        <div
+                            id="postMenu"
+                            style="
+                                display:none;
+                                position:absolute;
+                                right:0;
+                                top:35px;
+                                background:var(--bg-card);
+                                border:1px solid var(--border);
+                                border-radius:8px;
+                                min-width:140px;
+                                box-shadow:0 4px 10px rgba(0,0,0,0.1);
+                                z-index:100;
+                            ">
+
+                            @if($post->created_at->diffInHours(now()) < 1)
+
+                                <a
+                                    href="{{ route('forum.edit', $post->id) }}"
+                                    style="
+                                        display:block;
+                                        padding:10px;
+                                        text-decoration:none;
+                                        color:var(--text-primary);
+                                    ">
+                                    Edit Post
+                                </a>
+
+                            @endif
+
+                            <form
+                                method="POST"
+                                action="{{ route('forum.destroy', $post->id) }}">
+
+                                @csrf
+                                @method('DELETE')
+
+                                <button
+                                    type="submit"
+                                    onclick="return confirm('Delete this post?')"
+                                    style="
+                                        width:100%;
+                                        border:none;
+                                        background:none;
+                                        text-align:left;
+                                        padding:10px;
+                                        cursor:pointer;
+                                        color:red;
+                                    ">
+                                    Delete Post
+                                </button>
+
+                            </form>
+
+                        </div>
 
                     </div>
 
-                </div>
-
-            @endif
+                @endif
+            </div>
 
         </div>
 
@@ -177,6 +354,37 @@
     </div>
 </div>
 
+{{-- ==================== REPORT MODAL (PBI #55) ==================== --}}
+@if(auth()->id() !== $post->user_id)
+<div id="reportOverlay" class="report-overlay">
+    <div class="report-modal">
+        <h3>🚩 Report Post</h3>
+        <p style="font-size:0.8125rem; color:var(--text-muted); margin-bottom:1rem;">
+            Why are you reporting this post?
+        </p>
+        <form method="POST" action="{{ route('forum.report', $post->id) }}">
+            @csrf
+            <select name="reason" class="report-select" required>
+                <option value="" disabled selected>Select a reason…</option>
+                <option value="Spam or misleading">Spam or misleading</option>
+                <option value="Inappropriate or offensive content">Inappropriate or offensive content</option>
+                <option value="Misinformation or inaccurate data">Misinformation or inaccurate data</option>
+                <option value="Harassment or bullying">Harassment or bullying</option>
+                <option value="Off-topic or irrelevant">Off-topic or irrelevant</option>
+                <option value="Other">Other</option>
+            </select>
+            <div class="report-btn-row">
+                <button type="button" class="report-cancel"
+                    onclick="document.getElementById('reportOverlay').classList.remove('active')">
+                    Cancel
+                </button>
+                <button type="submit" class="report-submit">Submit Report</button>
+            </div>
+        </form>
+    </div>
+</div>
+@endif
+
 <script>
 
 function toggleMenu(event)
@@ -195,13 +403,20 @@ function toggleMenu(event)
     }
 }
 
-window.addEventListener('click', function()
+window.addEventListener('click', function(e)
 {
     const menu = document.getElementById('postMenu');
 
     if(menu)
     {
         menu.style.display = 'none';
+    }
+
+    // Also close report modal if clicking outside
+    const overlay = document.getElementById('reportOverlay');
+    if(overlay && e.target === overlay)
+    {
+        overlay.classList.remove('active');
     }
 });
 

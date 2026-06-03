@@ -4,7 +4,7 @@
 <style>
 .filter-tabs { display:flex; gap:0.5rem; margin-bottom:1.25rem; }
 .filter-tab { padding:0.45rem 1rem; border-radius:8px; text-decoration:none; font-size:0.8125rem; font-weight:600; color:var(--text-muted); border:1px solid var(--border); transition:all 0.15s; }
-.filter-tab:hover { background:var(--nav-hover-bg); }
+.filter-tab:hover { background:var(--nav-hover-bg); color:var(--text-primary); }
 .filter-tab.active { background:var(--blue-600); color:#fff; border-color:var(--blue-600); }
 .mod-table { width:100%; border-collapse:collapse; }
 .mod-table th { text-align:left; padding:0.6rem 0.75rem; font-size:0.72rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; border-bottom:1px solid var(--border); }
@@ -73,9 +73,9 @@
             <tbody>
                 @foreach($posts as $i => $post)
                 <tr>
-                    <td style="color:var(--text-faint);">{{ $posts->firstItem() + $i }}</td>
+                    <td style="color:var(--text-faint);font-size:0.72rem;">{{ $posts->firstItem() + $i }}</td>
                     <td>
-                        <div style="font-weight:600;color:var(--text-primary);">{{ Str::limit($post->title, 40) }}</div>
+                        <a href="{{ route('forum.show', $post->id) }}" style="font-weight:600;color:var(--text-primary);text-decoration:none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">{{ Str::limit($post->title, 40) }}</a>
                     </td>
                     <td>{{ $post->user->name ?? 'Unknown' }}</td>
                     <td>
