@@ -175,7 +175,7 @@
 <div class="points-hero">
     <div class="hero-inner">
         <div>
-            <div class="hero-pts">{{ number_format($totalPoints) }}<small>pts</small></div>
+            <div class="hero-pts">{{ number_format($totalPoints) }}<small>p t s</small></div>
             <div class="hero-label">Total points earned</div>
         </div>
         <div class="hero-right">
@@ -270,8 +270,10 @@
                         {{ ucfirst($badge->category) }}
                     </span>
 
-                    @if($isEarned && $earnedAt)
-                        <div class="badge-date">🗓 {{ $earnedAt->format('j M Y') }}</div>
+                    @if($isEarned && !empty($earnedAt))
+                         <div class="badge-date">
+                            📅 {{ \Carbon\Carbon::parse($earnedAt)->translatedFormat('j M Y') }}
+                            </div>
                     @endif
                 </div>
             @endforeach
