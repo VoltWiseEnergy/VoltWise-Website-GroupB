@@ -61,6 +61,23 @@
                                 Edit Post
                             </a>
 
+                        @else
+
+                            <button
+                                type="button"
+                                onclick="alert('This post can only be edited within 1 hour of creation.')"
+                                style="
+                                    width:100%;
+                                    border:none;
+                                    background:none;
+                                    text-align:left;
+                                    padding:10px;
+                                    color:#9ca3af;
+                                    cursor:not-allowed;
+                                ">
+                                Edit Post (Expired)
+                            </button>
+
                         @endif
 
                         <form

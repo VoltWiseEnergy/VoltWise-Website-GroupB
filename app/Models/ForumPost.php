@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\ForumComment;
+use App\Models\ForumPostVote;
 
 class ForumPost extends Model
 {
@@ -23,5 +24,10 @@ class ForumPost extends Model
     public function comments()
     {
         return $this->hasMany(ForumComment::class, 'forum_post_id');
+    }
+
+    public function uservotes()
+    {
+        return $this->hasMany(ForumPostVote::class, 'forum_post_id');
     }
 }
