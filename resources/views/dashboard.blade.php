@@ -5,7 +5,7 @@
 
 @php
     $budget      = auth()->user()->monthly_budget;
-    $monthlyCost = auth()->user()->devices()->sum('monthly_cost') ?? 0;
+    $monthlyCost = $monthlyCost ?? 0;
     $pct         = ($budget && $budget > 0)
                     ? min(round(($monthlyCost / $budget) * 100, 1), 100)
                     : 0;
