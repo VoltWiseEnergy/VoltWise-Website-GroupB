@@ -128,20 +128,21 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const quickAddSelect = document.getElementById('quickAddSelect');
-    if (!quickAddSelect) return;
+    if (quickAddSelect) {
+        const nameInput = document.querySelector('input[name="name"]');
+        const wattageInput = document.querySelector('input[name="wattage"]');
+        const categorySelect = document.querySelector('select[name="category"]');
 
-    const nameInput = document.querySelector('input[name="name"]');
-    const wattageInput = document.querySelector('input[name="wattage"]');
-    const categorySelect = document.querySelector('select[name="category"]');
+        quickAddSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            if (selectedOption.value) {
+                nameInput.value = selectedOption.getAttribute('data-name');
+                wattageInput.value = selectedOption.getAttribute('data-wattage');
+                categorySelect.value = selectedOption.getAttribute('data-category');
+            }
+        });
+    }
 
-    quickAddSelect.addEventListener('change', function() {
-        const selectedOption = this.options[this.selectedIndex];
-        if (selectedOption.value) {
-            nameInput.value = selectedOption.getAttribute('data-name');
-            wattageInput.value = selectedOption.getAttribute('data-wattage');
-            categorySelect.value = selectedOption.getAttribute('data-category');
-        }
-    });
 });
 </script>
 @endsection
