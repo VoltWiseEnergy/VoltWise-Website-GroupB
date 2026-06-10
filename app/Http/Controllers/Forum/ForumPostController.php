@@ -6,6 +6,29 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ForumPost;
 use App\Models\ForumComment;
+use App\Models\ForumPostVote;
+
+class ForumPostController extends Controller
+{
+    // Show all posts
+    public function index(Request $request)
+    {
+        $sort = $request->get('sort');
+
+        $posts = ForumPost::with([
+            'user',
+            'userVotes' => function ($query) {
+                $query->where('user_id', auth()->id());
+            }
+        ])->withCount('comments');
+
+        if ($sort === 'top') {
+            $posts->orderByDesc('votes');
+        } else {
+            $posts->latest();
+        }
+
+        $posts = $posts->get();
 use App\Models\ForumReport;
 
 class ForumPostController extends Controller
@@ -18,7 +41,7 @@ class ForumPostController extends Controller
             ->latest()
             ->get();
 
-        return view('forum.index', compact('posts'));
+        return view('forum.index', compact('posts', 'sort'));
     }
 
     // Create page
@@ -44,14 +67,16 @@ class ForumPostController extends Controller
 
         return redirect()
             ->route('forum.index')
-            ->with('success', 'Post created successfully.');
+            ->with('success', 'Post created successfully. You can edit this post for up to 1 hour after creation.');
     }
 
     // Show single post
     public function show($id)
     {
-        $post = ForumPost::with(['user', 'comments.user'])
-            ->findOrFail($id);
+        $post = ForumPost::with([
+            'user',
+            'comments.user'
+        ])->findOrFail($id);
 
         return view('forum.show', compact('post'));
     }
@@ -78,12 +103,10 @@ class ForumPostController extends Controller
     {
         $post = ForumPost::findOrFail($id);
 
-        // Only owner
         if ($post->user_id !== auth()->id()) {
             abort(403);
         }
 
-        // Only editable within 1 hour
         if ($post->created_at->diffInHours(now()) >= 1) {
             return redirect()
                 ->route('forum.index')
@@ -139,6 +162,70 @@ class ForumPostController extends Controller
             ->with('success', 'Post deleted successfully.');
     }
 
+    // UPVOTE
+    public function upvote($id)
+    {
+        $post = ForumPost::findOrFail($id);
+
+        $vote = ForumPostVote::where('forum_post_id', $id)
+            ->where('user_id', auth()->id())
+            ->first();
+
+        if (!$vote) {
+            ForumPostVote::create([
+                'forum_post_id' => $id,
+                'user_id' => auth()->id(),
+                'vote' => 1
+            ]);
+
+            $post->increment('votes');
+        } elseif ($vote->vote == 1) {
+            $vote->delete();
+
+            $post->decrement('votes');
+        } else {
+            $vote->update([
+                'vote' => 1
+            ]);
+
+            $post->increment('votes', 2);
+        }
+
+        return back();
+    }
+
+    // DOWNVOTE
+    public function downvote($id)
+    {
+        $post = ForumPost::findOrFail($id);
+
+        $vote = ForumPostVote::where('forum_post_id', $id)
+            ->where('user_id', auth()->id())
+            ->first();
+
+        if (!$vote) {
+            ForumPostVote::create([
+                'forum_post_id' => $id,
+                'user_id' => auth()->id(),
+                'vote' => -1
+            ]);
+
+            $post->decrement('votes');
+        } elseif ($vote->vote == -1) {
+            $vote->delete();
+
+            $post->increment('votes');
+        } else {
+            $vote->update([
+                'vote' => -1
+            ]);
+
+            $post->decrement('votes', 2);
+        }
+
+        return back();
+    }
+}
     // PBI #55 — User: Report a post
     public function report(Request $request, $id)
     {
