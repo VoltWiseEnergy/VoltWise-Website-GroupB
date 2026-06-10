@@ -7,10 +7,11 @@ use Illuminate\Http\Request;
 use App\Models\ForumPost;
 use App\Models\ForumComment;
 use App\Models\ForumPostVote;
+use App\Models\ForumReport;
 
 class ForumPostController extends Controller
 {
-    // Show all posts
+    // Show all posts (hide hidden posts from regular users)
     public function index(Request $request)
     {
         $sort = $request->get('sort');
@@ -20,7 +21,8 @@ class ForumPostController extends Controller
             'userVotes' => function ($query) {
                 $query->where('user_id', auth()->id());
             }
-        ])->withCount('comments');
+        ])->withCount('comments')
+          ->where('status', '!=', 'hidden');
 
         if ($sort === 'top') {
             $posts->orderByDesc('votes');
@@ -29,17 +31,6 @@ class ForumPostController extends Controller
         }
 
         $posts = $posts->get();
-use App\Models\ForumReport;
-
-class ForumPostController extends Controller
-{
-    // Show all posts (hide hidden posts from regular users)
-    public function index()
-    {
-        $posts = ForumPost::with('user')
-            ->where('status', '!=', 'hidden')
-            ->latest()
-            ->get();
 
         return view('forum.index', compact('posts', 'sort'));
     }
@@ -225,7 +216,7 @@ class ForumPostController extends Controller
 
         return back();
     }
-}
+
     // PBI #55 — User: Report a post
     public function report(Request $request, $id)
     {
