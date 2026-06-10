@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'monthly_budget', 'points'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -28,5 +28,41 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+    // app/Models/User.php
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'phone',
+        'avatar',
+        'monthly_budget',
+        'points',
+    ];
+
+        public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+    
+        public function devices()
+    {
+        return $this->hasMany(\App\Models\Device::class);
+    }
+
+    public function pointLogs()
+    {
+        return $this->hasMany(\App\Models\UserPointLog::class);
+    }
+
+    /**
+     * Badges the user has earned.
+     */
+    public function badges()
+    {
+        return $this->belongsToMany(\App\Models\Badge::class, 'user_badges')
+                    ->withPivot('earned_at')
+                    ->withTimestamps()
+                    ->orderBy('user_badges.earned_at');
     }
 }
