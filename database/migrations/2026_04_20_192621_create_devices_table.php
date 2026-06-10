@@ -14,8 +14,8 @@ return new class extends Migration
             $table->string('name');                         // e.g. "AC Sharp 1 PK"
             $table->string('category');                     // e.g. "Air Conditioner"
             $table->string('brand')->nullable();
-            $table->decimal('power_watt', 10, 2);           // watt
-            $table->decimal('usage_hours_per_day', 5, 2);   // hours/day
+            $table->decimal('wattage', 10, 2);           // watt
+            $table->decimal('usage_hours_per_day', 5, 2)->nullable();   // hours/day
             $table->integer('usage_days_per_month')->default(30);
             $table->string('energy_label')->nullable();     // A, B, C, D, E (efficiency rating)
             $table->text('notes')->nullable();
