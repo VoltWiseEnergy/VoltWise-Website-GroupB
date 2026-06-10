@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\MasterDeviceController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Forum\ForumPostController;
 use App\Http\Controllers\SimulatorController;
+use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\Admin\ForumModerationController;
 
 // Main Page
@@ -37,6 +38,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware('auth')->group(function () {
     // User Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/trend', [DashboardController::class, 'weeklyTrend'])->name('dashboard.trend');
     // Profile Routes
     Route::get('/profile',            [ProfileController::class, 'show'])->name('profile');
     Route::put('/profile',            [ProfileController::class, 'update'])->name('profile.update');
@@ -55,6 +57,8 @@ Route::middleware('auth')->group(function () {
     // Points / Gamification Routes
     Route::get('/points', [PointsController::class, 'index'])->name('points.index');
     Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard.index');
+    // Analytics Routes (PBI-36, PBI-37, PBI-38)
+    Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
 
     // Device Routes
     Route::get('/devices',               [DeviceController::class, 'index'])->name('devices.index');

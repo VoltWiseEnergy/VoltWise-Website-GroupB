@@ -77,4 +77,75 @@ class DashboardController extends Controller
             'newlyAwarded'
         ));
     }
+
+    /**
+     * Return JSON for the 7-Day Energy Trend chart.
+     * ?week=0  → current week (Mon–today)
+     * ?week=1  → last week, … up to ?week=6
+     */
+    public function weeklyTrend(\Illuminate\Http\Request $request)
+    {
+        $weekOffset = max(0, min(6, (int) $request->query('week', 0)));
+        $userId     = Auth::id();
+        $colors     = ['#4A7CF6','#10b981','#8b5cf6','#f59e0b','#f87171','#06b6d4','#ec4899'];
+
+        // Determine the Monday of the target week
+        $monday = Carbon::now()->startOfWeek(Carbon::MONDAY)->subWeeks($weekOffset);
+        $sunday = $monday->copy()->endOfWeek(Carbon::SUNDAY);
+
+        // Build 7 date strings Mon → Sun
+        $dates  = [];
+        $labels = [];
+        for ($d = 0; $d < 7; $d++) {
+            $day      = $monday->copy()->addDays($d);
+            $dates[]  = $day->toDateString();
+            $labels[] = $day->format('D d/m');   // e.g. "Mon 02/06"
+        }
+
+        // Fetch all usage logs for those 7 days
+        $logs = UsageLog::where('user_id', $userId)
+            ->whereBetween('usage_date', [$dates[0], $dates[6]])
+            ->get();
+
+        // Fetch all devices for this user
+        $devices = Device::where('user_id', $userId)->orderBy('name')->get();
+
+        // Build datasets: one per device
+        $datasets = [];
+        foreach ($devices as $idx => $device) {
+            $color = $colors[$idx % count($colors)];
+            $data  = [];
+            foreach ($dates as $date) {
+                $log    = $logs->where('device_id', $device->id)->where('usage_date', $date)->first();
+                $data[] = $log ? round($log->kwh, 3) : 0;
+            }
+            // Skip devices with zero usage across the whole week
+            if (array_sum($data) == 0) continue;
+
+            $datasets[] = [
+                'label'           => $device->name,
+                'data'            => $data,
+                'borderColor'     => $color,
+                'backgroundColor' => 'rgba(74,124,246,0.08)',
+                'fill'            => $idx === 0,
+                'tension'         => 0.4,
+                'pointRadius'     => 4,
+                'borderWidth'     => 2,
+            ];
+        }
+
+        $weekLabel = $weekOffset === 0
+            ? 'This week (' . $monday->format('d M') . ' – ' . $sunday->format('d M') . ')'
+            : $monday->format('d M') . ' – ' . $sunday->format('d M Y');
+
+        return response()->json([
+            'labels'     => $labels,
+            'datasets'   => $datasets,
+            'weekLabel'  => $weekLabel,
+            'weekOffset' => $weekOffset,
+            'canPrev'    => $weekOffset < 6,
+            'canNext'    => $weekOffset > 0,
+        ]);
+    }
 }
+
