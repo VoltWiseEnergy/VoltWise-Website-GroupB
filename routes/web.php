@@ -71,6 +71,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/devices/{device}/edit', [DeviceController::class, 'edit'])->name('devices.edit');
     Route::put('/devices/{device}',      [DeviceController::class, 'update'])->name('devices.update');
     Route::delete('/devices/{device}',   [DeviceController::class, 'destroy'])->name('devices.destroy');
+    Route::post('/devices/reminder',     [DeviceController::class, 'scheduleReminder'])->name('devices.reminders.schedule');
+    Route::get('/devices/{device}/reminder/edit', [DeviceController::class, 'editReminder'])->name('devices.reminders.edit');
+    Route::put('/devices/{device}/reminder', [DeviceController::class, 'updateReminder'])->name('devices.reminders.update');
+    Route::delete('/devices/{device}/reminder', [DeviceController::class, 'destroyReminder'])->name('devices.reminders.destroy');
 
     // Recommendation Routes
     Route::get('/recommendations', [RecommendationController::class, 'index'])->name('recommendations.index');
