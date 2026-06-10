@@ -37,7 +37,7 @@ class ForumPost extends Model
     {
         return $this->hasMany(ForumPostVote::class, 'forum_post_id');
     }
-}
+
     public function reports()
     {
         return $this->hasMany(ForumReport::class, 'post_id');
