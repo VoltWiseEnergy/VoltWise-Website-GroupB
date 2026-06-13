@@ -14,8 +14,9 @@ use App\Http\Controllers\Admin\MasterDeviceController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Forum\ForumPostController;
 use App\Http\Controllers\SimulatorController;
+use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\Admin\ForumModerationController;
-use App\Http\Controllers\CompareController; // Make sure to import or double-check these namespaces
+use App\Http\Controllers\CompareController; 
 use App\Http\Controllers\TariffController;
 
 // Main Page
@@ -42,6 +43,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware('auth')->group(function () {
     // User Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/trend', [DashboardController::class, 'weeklyTrend'])->name('dashboard.trend');
 
     // Profile Routes
     Route::get('/profile',            [ProfileController::class, 'show'])->name('profile');
@@ -63,6 +65,9 @@ Route::middleware('auth')->group(function () {
     // Points / Gamification Routes
     Route::get('/points', [PointsController::class, 'index'])->name('points.index');
     Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard.index');
+    
+    // Analytics Routes (PBI-36, PBI-37, PBI-38)
+    Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
 
     // Device Routes
     Route::get('/devices',               [DeviceController::class, 'index'])->name('devices.index');
@@ -71,6 +76,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/devices/{device}/edit', [DeviceController::class, 'edit'])->name('devices.edit');
     Route::put('/devices/{device}',      [DeviceController::class, 'update'])->name('devices.update');
     Route::delete('/devices/{device}',   [DeviceController::class, 'destroy'])->name('devices.destroy');
+    Route::post('/devices/reminder',     [DeviceController::class, 'scheduleReminder'])->name('devices.reminders.schedule');
+    Route::get('/devices/{device}/reminder/edit', [DeviceController::class, 'editReminder'])->name('devices.reminders.edit');
+    Route::put('/devices/{device}/reminder', [DeviceController::class, 'updateReminder'])->name('devices.reminders.update');
+    Route::delete('/devices/{device}/reminder', [DeviceController::class, 'destroyReminder'])->name('devices.reminders.destroy');
 
     // Recommendation Routes
     Route::get('/recommendations', [RecommendationController::class, 'index'])->name('recommendations.index');
@@ -96,7 +105,7 @@ Route::middleware('auth')->group(function () {
     // Energy Cost Simulator Routes
     Route::get('/simulator',              [SimulatorController::class, 'index'])->name('simulator.index');   // PBI #56
     Route::post('/simulator',             [SimulatorController::class, 'store'])->name('simulator.store');   // PBI #56 + #57
-    Route::get('/simulator/{scenario}',   [SimulatorController::class, 'show'])->name('simulator.show');    // PBI #58
+    Route::get('/simulator/{scenario}',   [SimulatorController::class, 'show'])->name('simulator.show');     // PBI #58
     Route::delete('/simulator/{scenario}',[SimulatorController::class, 'destroy'])->name('simulator.destroy');
 
     // Device Comparison (PBI #33, #34, #35)
