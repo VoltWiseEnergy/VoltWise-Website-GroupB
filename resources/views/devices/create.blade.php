@@ -31,11 +31,15 @@
                 <div class="template-box">
                     <div class="template-label">Quick Add from Device Library</div>
 
-                    <select name="master_device_id" class="form-input">
+                    <select name="master_device_id" class="form-input" id="quickAddSelect">
                         <option value="">— Select a device template or type manually below —</option>
 
                         @foreach($masterDevices as $md)
-                            <option value="{{ $md->id }}" {{ old('master_device_id') == $md->id ? 'selected' : '' }}>
+                            <option value="{{ $md->id }}" 
+                                data-name="{{ $md->name }}"
+                                data-wattage="{{ $md->wattage }}"
+                                data-category="{{ $md->category }}"
+                                {{ old('master_device_id') == $md->id ? 'selected' : '' }}>
                                 {{ $md->name }} ({{ number_format($md->wattage, 0) }}W — {{ $md->category }})
                             </option>
                         @endforeach
@@ -120,6 +124,27 @@
 
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const quickAddSelect = document.getElementById('quickAddSelect');
+    if (quickAddSelect) {
+        const nameInput = document.querySelector('input[name="name"]');
+        const wattageInput = document.querySelector('input[name="wattage"]');
+        const categorySelect = document.querySelector('select[name="category"]');
+
+        quickAddSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            if (selectedOption.value) {
+                nameInput.value = selectedOption.getAttribute('data-name');
+                wattageInput.value = selectedOption.getAttribute('data-wattage');
+                categorySelect.value = selectedOption.getAttribute('data-category');
+            }
+        });
+    }
+
+});
+</script>
 @endsection
 
 

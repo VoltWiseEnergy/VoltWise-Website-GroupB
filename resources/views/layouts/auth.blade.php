@@ -81,7 +81,13 @@
         /* =============================================
            BASE LAYOUT
         ============================================= */
-        html {
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100vh;
+
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             font-size: 16px;
             -webkit-font-smoothing: antialiased;
@@ -90,25 +96,40 @@
         body {
             background: var(--bg-right);
             color: var(--text-primary);
-            min-height: 100vh;
+
             display: grid;
             grid-template-columns: 1fr 1fr;
+            overflow: hidden;
+
             transition: background 0.25s, color 0.25s;
         }
 
+        .panel-left,
+        .panel-right {
+            height: 100vh;
+        }
         /* =============================================
            LEFT PANEL
         ============================================= */
         .panel-left {
-            background: linear-gradient(160deg, #4A7CF6 0%, #3563e9 50%, #1d4ed8 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 3.5rem 4rem;
-            position: relative;
-            overflow: hidden;
-        }
+            height: 100vh;
+
+            background: linear-gradient(
+                160deg,
+                #4A7CF6 0%,
+                #3563e9 50%,
+                #1d4ed8 100%
+        );
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+
+        padding: 3.5rem 4rem;
+        position: relative;
+        overflow: hidden;
+    }
 
         /* ---- Floating ball keyframes ---- */
         @keyframes float1 {
@@ -226,13 +247,18 @@
         ============================================= */
         .panel-right {
             background: var(--bg-right);
-            display:flex; flex-direction:column;
-            justify-content:center; align-items:center;
-            padding:3rem 2rem; overflow-y:auto;
+            overflow-y: auto;
             transition: background 0.25s;
         }
+        .form-container-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100%;
+            padding: 2.5rem 2rem;
+        }
         .form-container {
-            width:100%; max-width:400px;
+            width: 100%; max-width: 400px;
             animation: fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
         }
         @keyframes fadeUp {
@@ -414,8 +440,10 @@
 
 {{-- RIGHT PANEL --}}
 <div class="panel-right">
-    <div class="form-container">
-        @yield('form-content')
+    <div class="form-container-wrapper">
+        <div class="form-container">
+            @yield('form-content')
+        </div>
     </div>
 </div>
 

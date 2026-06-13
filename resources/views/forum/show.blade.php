@@ -89,6 +89,10 @@
 
 @section('content')
 
+<a href="{{ route('forum.index') }}" style="display:inline-flex; align-items:center; gap:6px; text-decoration:none; color:var(--text-muted); font-size:0.875rem; margin-bottom:1rem; padding:6px 12px; border:1px solid var(--border); border-radius:8px; transition:all 0.15s;" onmouseover="this.style.background='var(--nav-hover-bg)'" onmouseout="this.style.background='transparent'">
+    ← Back to Forum
+</a>
+
 {{-- Flash messages --}}
 @if(session('success'))
     <div class="alert-bar alert-success">{{ session('success') }}</div>
@@ -118,7 +122,7 @@
 
             <div style="display:flex; gap:0.5rem; align-items:center;">
 
-                {{-- Report button (visible to everyone except post owner) --}}
+                {{-- Report button (visible to everyone EXCEPT post owner) --}}
                 @if(auth()->id() !== $post->user_id)
                     <button
                         onclick="document.getElementById('reportOverlay').classList.add('active')"
@@ -138,7 +142,7 @@
                     </button>
                 @endif
 
-                {{-- Owner menu (edit / delete) --}}
+                {{-- Owner menu (edit / delete) — ONLY for post owner --}}
                 @if(auth()->id() == $post->user_id)
 
                     <div style="position:relative;">
@@ -182,6 +186,23 @@
                                     ">
                                     Edit Post
                                 </a>
+
+                            @else
+
+                                <button
+                                    type="button"
+                                    onclick="alert('This post can only be edited within 1 hour of creation.')"
+                                    style="
+                                        width:100%;
+                                        border:none;
+                                        background:none;
+                                        text-align:left;
+                                        padding:10px;
+                                        color:#9ca3af;
+                                        cursor:not-allowed;
+                                    ">
+                                    Edit Post (Expired)
+                                </button>
 
                             @endif
 

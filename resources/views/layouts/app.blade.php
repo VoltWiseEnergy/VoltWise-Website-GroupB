@@ -614,7 +614,7 @@
             </div>
         </header>
 
-        <main class="page-content">
+        <header class="topbar" style="display: none;"></header> <main class="page-content">
             @if (session('success'))
                 <div class="flash" role="status">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -653,6 +653,253 @@
         localStorage.setItem('voltwise-theme', next);
     });
 </script>
+
+<div id="notification-container" class="notification-container" style="display:flex;"></div>
+
+<script>
+    (function () {
+        // Create toast container if missing (safe across all pages)
+        const container = document.getElementById('notification-container') || (function(){
+            const el = document.createElement('div');
+            el.id = 'notification-container';
+            document.body.appendChild(el);
+            return el;
+        })();
+
+        class NotificationSystem {
+            constructor() {
+                this.container = container;
+                this.notifications = new Map();
+            }
+
+            show(message, type = 'success', duration = 7000, title = null) {
+                const id = Date.now() + Math.random();
+                const toast = document.createElement('div');
+                toast.className = `notification-toast ${type}`;
+
+                const iconMap = {
+                    success: '✓',
+                    warning: '⚠',
+                    error: '✕'
+                };
+
+                const finalTitle = title || (type === 'success' ? 'Reminder' : type === 'warning' ? 'Warning' : 'Error');
+
+                toast.innerHTML = `
+                    <div class="notification-icon">${iconMap[type] || '•'}</div>
+                    <div class="notification-content">
+                        <div class="notification-title">${finalTitle}</div>
+                        <div class="notification-message">${message}</div>
+                    </div>
+                    <button class="notification-close" aria-label="Close">×</button>
+                `;
+
+                toast.querySelector('.notification-close').addEventListener('click', function () {
+                    toast.classList.add('removing');
+                    setTimeout(() => toast.remove(), 300);
+                });
+
+                // ensure container visible
+                this.container.style.display = 'flex';
+
+                this.container.appendChild(toast);
+                this.notifications.set(id, toast);
+
+                if (duration > 0) {
+                    setTimeout(() => {
+                        if (this.notifications.has(id)) {
+                            toast.classList.add('removing');
+                            setTimeout(() => {
+                                toast.remove();
+                                this.notifications.delete(id);
+                            }, 300);
+                        }
+                    }, duration);
+                }
+
+                return id;
+            }
+        }
+
+        const notifications = new NotificationSystem();
+
+        // Global reminders polling:
+        // Uses localStorage to store the latest known reminders per-device.
+        // devices/index updates these keys on page load, but to cover "every page",
+        // we read from localStorage and show toasts when times match.
+        function getStoredReminders() {
+            try {
+                const raw = localStorage.getItem('voltwise-reminders-due');
+                return raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        // Standard 24h client time provider
+        function currentHHmm() {
+            const now = new Date();
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            return `${hh}:${mm}`;
+        }
+
+        function checkAndNotifyFromStorage() {
+            const nowTime = currentHHmm();
+            const reminders = getStoredReminders();
+            let shownAny = false;
+
+            reminders.forEach(r => {
+                if (!r || !r.time) return;
+                if (r.time !== nowTime) return;
+
+                const notifKey = `voltwise-reminder-notified:${r.id}:${nowTime}`;
+                if (localStorage.getItem(notifKey) === '1') return;
+                localStorage.setItem(notifKey, '1');
+                shownAny = true;
+
+                const message = r.message || `Time to check ${r.deviceName || 'Device'}!`;
+
+                // Persist due reminder payload so it can be shown after page navigation
+                try {
+                    localStorage.setItem(
+                        'voltwise-reminder-due-fresh',
+                        JSON.stringify({ time: nowTime, message: message, id: r.id || null })
+                    );
+                } catch (e) {}
+
+                notifications.show(
+                    message,
+                    'success',
+                    9000,
+                    'Reminder Alert'
+                );
+            });
+
+            return shownAny;
+        }
+
+        function showPendingDueReminder() {
+            try {
+                const raw = localStorage.getItem('voltwise-reminder-due-fresh');
+                if (!raw) return false;
+                const payload = JSON.parse(raw);
+                if (!payload || !payload.time) return false;
+
+                // Show only if still same minute
+                const nowTime = currentHHmm();
+                if (payload.time !== nowTime) {
+                    localStorage.removeItem('voltwise-reminder-due-fresh');
+                    return false;
+                }
+
+                notifications.show(
+                    payload.message || 'Reminder Alert',
+                    'success',
+                    9000,
+                    'Reminder Alert'
+                );
+
+                localStorage.removeItem('voltwise-reminder-due-fresh');
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // Poll every 30 seconds across all pages
+        document.addEventListener('DOMContentLoaded', function () {
+            // debug: ensure container exists and reminders are loaded
+            try {
+                console.log('[VoltWise] reminders due', getStoredReminders());
+                const raw = localStorage.getItem('voltwise-reminders-due');
+                console.log('[VoltWise] raw reminders key', raw);
+            } catch (e) {}
+
+            // If a due reminder happened on the previous page load, show it immediately here
+            showPendingDueReminder();
+
+            checkAndNotifyFromStorage();
+
+            // Poll more frequently right after navigation (helps if localStorage is updated later)
+            setInterval(checkAndNotifyFromStorage, 5000);
+        });
+    })();
+</script>
+
+<style>
+    /* Global toast sizing (bigger, visible) */
+    .notification-container {
+        position: fixed;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        z-index: 999;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        max-width: 520px;
+        pointer-events: none;
+    }
+
+    .notification-toast {
+        display: flex;
+        align-items: flex-start;
+        gap: 1.1rem;
+        padding: 1.1rem 1.4rem;
+        background: white;
+        border-radius: 14px;
+        border-left: 6px solid #10b981;
+        box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+        animation: slideIn 0.3s ease-out;
+        pointer-events: auto;
+        font-size: 1rem;
+        line-height: 1.4;
+    }
+
+    .notification-toast.success { border-left-color: #10b981; background: rgba(16,185,129,0.02); }
+    .notification-toast.warning { border-left-color: #f59e0b; background: rgba(245,158,11,0.02); }
+    .notification-toast.error { border-left-color: #ef4444; background: rgba(239,68,68,0.02); }
+
+    .notification-icon {
+        flex-shrink: 0;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 2px;
+        font-weight: 900;
+        color: #10b981;
+        background: rgba(16,185,129,0.12);
+        border-radius: 10px;
+    }
+    .notification-toast.warning .notification-icon { color: #f59e0b; background: rgba(245,158,11,0.12); }
+    .notification-toast.error .notification-icon { color: #ef4444; background: rgba(239,68,68,0.12); }
+
+    .notification-title { font-weight: 800; color: var(--text-primary); font-size: 1.05rem; margin-bottom: 0.25rem; }
+    .notification-message { color: var(--text-secondary); font-size: 0.98rem; }
+
+    .notification-close {
+        flex-shrink: 0;
+        margin-left: auto;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--text-faint);
+        font-size: 1.2rem;
+        line-height: 1;
+        padding: 0.25rem 0.4rem;
+        border-radius: 10px;
+    }
+    .notification-close:hover { color: var(--text-primary); background: rgba(148,163,184,0.15); }
+
+    @keyframes slideIn { from { opacity: 0; transform: translateX(420px); } to { opacity: 1; transform: translateX(0);} }
+    @keyframes slideOut { from { opacity: 1; transform: translateX(0);} to { opacity: 0; transform: translateX(420px);} }
+    .notification-toast.removing { animation: slideOut 0.3s ease-out forwards; }
+
+    [data-theme="dark"] .notification-toast { background: #1a2235; box-shadow: 0 8px 28px rgba(0,0,0,0.35); }
+    [data-theme="dark"] .notification-close:hover { background: rgba(148,163,184,0.1); }
+</style>
 
 @yield('scripts')
 
