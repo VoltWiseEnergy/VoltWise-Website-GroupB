@@ -94,6 +94,27 @@
 [data-theme="dark"] .award-chip.gold  { color:#fde047; }
 .points-link { font-size:0.78rem; font-weight:600; color:var(--blue-600); text-decoration:none; display:inline-flex; align-items:center; gap:3px; }
 .points-link:hover { text-decoration:underline; }
+
+/* ── Week navigator ── */
+.week-nav {
+    display:flex; align-items:center; gap:0.5rem;
+    flex-shrink:0;
+}
+.week-nav-btn {
+    width:28px; height:28px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:6px; border:1px solid var(--border);
+    background:var(--icon-btn-bg); color:var(--text-muted);
+    cursor:pointer; transition:background 0.15s, color 0.15s, border-color 0.15s;
+    padding:0;
+}
+.week-nav-btn:hover:not(:disabled) { background:var(--blue-600); color:#fff; border-color:var(--blue-600); }
+.week-nav-btn:disabled { opacity:0.35; cursor:not-allowed; }
+.week-nav-btn svg { width:13px; height:13px; pointer-events:none; }
+.week-label {
+    font-size:0.72rem; font-weight:600; color:var(--text-muted);
+    white-space:nowrap;
+}
 </style>
 @endsection
 
@@ -400,9 +421,20 @@
                     <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.75rem;">
                         <div>
                             <div class="card-title">7-Day Energy Trend</div>
-                            <div class="card-subtitle">Daily consumption per device (kWh)</div>
+                            <div class="card-subtitle" id="trendSubtitle">Daily consumption per device (kWh)</div>
                         </div>
-                        <div class="chart-legend" id="trendLegend"></div>
+                        <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+                            <div class="chart-legend" id="trendLegend"></div>
+                            <div class="week-nav">
+                                <button class="week-nav-btn" id="trendPrev" title="Previous week" aria-label="Previous week">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                                </button>
+                                <span class="week-label" id="trendWeekLabel">This week</span>
+                                <button class="week-nav-btn" id="trendNext" title="Next week" aria-label="Next week">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     <div style="flex:1;position:relative;min-height:200px;">
                         <canvas id="energyLineChart"></canvas>
@@ -722,67 +754,87 @@
                     var gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
                     var tickColor = isDark ? '#64748b' : '#94a3b8';
 
-                    // Get dynamic devices data from backend
+                    // -- Donut chart still uses today's device data from blade --
                     var devicesData = @json($devices->values());
                     var colors = ['#4A7CF6','#10b981','#8b5cf6','#f59e0b','#f87171','#06b6d4','#ec4899'];
-                    
-                    var lineDatasets = [];
                     var donutLabels = [];
-                    var donutData = [];
+                    var donutData   = [];
                     var donutColors = [];
-
                     devicesData.forEach(function(device, index) {
-                        var color = colors[index % colors.length];
-                        var baseVal = device.daily_energy_kwh || 0;
-                        
-                        var trendData = [
-                            baseVal * 0.9, 
-                            baseVal * 1.05, 
-                            baseVal * 0.95, 
-                            baseVal * 1.0, 
-                            baseVal * 1.1, 
-                            baseVal * 0.85, 
-                            baseVal
-                        ];
-                        
-                        lineDatasets.push({
-                            label: device.name,
-                            data: trendData,
-                            borderColor: color,
-                            backgroundColor: index === 0 ? 'rgba(74,124,246,0.08)' : 'transparent',
-                            fill: index === 0,
-                            tension: 0.4,
-                            pointRadius: 3,
-                            borderWidth: 2
-                        });
-
                         donutLabels.push(device.name);
-                        donutData.push(baseVal);
-                        donutColors.push(color);
+                        donutData.push(device.daily_energy_kwh || 0);
+                        donutColors.push(colors[index % colors.length]);
                     });
 
-                    // -- 7-Day Line Chart --
-                    var lineEl = document.getElementById('energyLineChart');
-                    if (lineEl) {
-                        new Chart(lineEl, {
-                            type: 'line',
-                            data: {
-                                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                                datasets: lineDatasets
-                            },
-                            options: {
-                                responsive:true, maintainAspectRatio:false,
-                                plugins: {
-                                    legend: { display:false },
-                                    tooltip: { mode:'index', intersect:false }
-                                },
-                                scales: {
-                                    x: { grid:{ display:false }, ticks:{ color:tickColor, font:{ size:11 } } },
-                                    y: { grid:{ color:gridColor }, beginAtZero:true, ticks:{ color:tickColor, font:{ size:11 }, callback: function(v){ return v.toFixed(1)+' kWh'; } } }
-                                }
-                            }
+                    // -- 7-Day Line Chart (week-navigable) --
+                    var lineEl      = document.getElementById('energyLineChart');
+                    var weekLabel   = document.getElementById('trendWeekLabel');
+                    var prevBtn     = document.getElementById('trendPrev');
+                    var nextBtn     = document.getElementById('trendNext');
+                    var legendEl    = document.getElementById('trendLegend');
+                    var lineChart   = null;
+                    var currentWeek = 0;
+
+                    function buildLegend(datasets) {
+                        if (!legendEl) return;
+                        legendEl.innerHTML = '';
+                        datasets.forEach(function(ds) {
+                            var item = document.createElement('span');
+                            item.className = 'legend-item';
+                            item.innerHTML = '<span class="legend-dot" style="background:' + ds.borderColor + '"></span>' + ds.label;
+                            legendEl.appendChild(item);
                         });
                     }
+
+                    function loadWeek(offset) {
+                        if (!lineEl) return;
+                        fetch('/dashboard/trend?week=' + offset)
+                            .then(function(r) { return r.json(); })
+                            .then(function(data) {
+                                currentWeek = data.weekOffset;
+
+                                // Update nav controls
+                                if (weekLabel) weekLabel.textContent = data.weekLabel;
+                                if (prevBtn)   prevBtn.disabled  = !data.canPrev;
+                                if (nextBtn)   nextBtn.disabled  = !data.canNext;
+
+                                // Rebuild chart
+                                if (lineChart) {
+                                    lineChart.data.labels   = data.labels;
+                                    lineChart.data.datasets = data.datasets;
+                                    lineChart.update();
+                                } else {
+                                    lineChart = new Chart(lineEl, {
+                                        type: 'line',
+                                        data: { labels: data.labels, datasets: data.datasets },
+                                        options: {
+                                            responsive: true, maintainAspectRatio: false,
+                                            animation: { duration: 400 },
+                                            plugins: {
+                                                legend: { display: false },
+                                                tooltip: { mode: 'index', intersect: false }
+                                            },
+                                            scales: {
+                                                x: { grid: { display: false }, ticks: { color: tickColor, font: { size: 11 } } },
+                                                y: { grid: { color: gridColor }, beginAtZero: true,
+                                                     ticks: { color: tickColor, font: { size: 11 },
+                                                              callback: function(v) { return v.toFixed(2) + ' kWh'; } } }
+                                            }
+                                        }
+                                    });
+                                }
+                                buildLegend(data.datasets);
+                            })
+                            .catch(function() {
+                                if (weekLabel) weekLabel.textContent = 'Error loading data';
+                            });
+                    }
+
+                    if (prevBtn) prevBtn.addEventListener('click', function() { if (currentWeek < 6) loadWeek(currentWeek + 1); });
+                    if (nextBtn) nextBtn.addEventListener('click', function() { if (currentWeek > 0) loadWeek(currentWeek - 1); });
+
+                    // Load current week on page load
+                    loadWeek(0);
 
                     // -- Donut Chart --
                     var donutEl = document.getElementById('energyDonutChart');

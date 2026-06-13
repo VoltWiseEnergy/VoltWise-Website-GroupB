@@ -513,8 +513,8 @@
                     </svg>
                     Leaderboard
                 </a>
-                <a href="#"
-                   class="nav-item {{ request()->is('analytics*') ? 'active' : '' }}">
+                <a href="{{ route('analytics.index') }}"
+                   class="nav-item {{ request()->routeIs('analytics.*') ? 'active' : '' }}">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="18" y1="20" x2="18" y2="10"/>
                         <line x1="12" y1="20" x2="12" y2="4"/>
@@ -614,7 +614,7 @@
             </div>
         </header>
 
-        <main class="page-content">
+        <header class="topbar" style="display: none;"></header> <main class="page-content">
             @if (session('success'))
                 <div class="flash" role="status">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -736,6 +736,7 @@
             }
         }
 
+        // Standard 24h client time provider
         function currentHHmm() {
             const now = new Date();
             const hh = String(now.getHours()).padStart(2, '0');
@@ -804,16 +805,6 @@
             } catch (e) {
                 return false;
             }
-        }
-
-
-        function persistReminderState() {
-            // Ensure the reminder schedule is kept; if some pages never set it,
-            // it will remain from the last time it was available.
-            try {
-                // no-op placeholder to keep future extension simple
-                localStorage.getItem('voltwise-reminders-due');
-            } catch (e) {}
         }
 
         // Poll every 30 seconds across all pages
