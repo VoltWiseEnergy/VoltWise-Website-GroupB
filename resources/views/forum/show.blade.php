@@ -148,6 +148,7 @@
                     <div style="position:relative;">
 
                         <button
+                            dusk="post-menu-button"
                             onclick="toggleMenu(event)"
                             style="
                                 background:none;
@@ -190,6 +191,7 @@
                             @else
 
                                 <button
+                                    dusk="expired-edit-button"
                                     type="button"
                                     onclick="alert('This post can only be edited within 1 hour of creation.')"
                                     style="
@@ -214,6 +216,7 @@
                                 @method('DELETE')
 
                                 <button
+                                    dusk="delete-post-button"
                                     type="submit"
                                     onclick="return confirm('Delete this post?')"
                                     style="

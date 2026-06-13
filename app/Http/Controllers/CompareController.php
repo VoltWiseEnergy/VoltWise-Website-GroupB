@@ -56,7 +56,7 @@ class CompareController extends Controller
                 'name'          => $device->name,
                 'brand'         => $device->brand,
                 'category'      => $device->category,
-                'wattage'    => $device->wattage,
+                'wattage'       => $device->wattage,
                 'usage_hours'   => $device->usage_hours_per_day,
                 'usage_days'    => $device->usage_days_per_month,
                 'energy_label'  => strtoupper($device->energy_label ?? '?'),
