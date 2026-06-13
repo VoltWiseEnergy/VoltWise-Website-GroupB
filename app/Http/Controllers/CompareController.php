@@ -43,7 +43,7 @@ class CompareController extends Controller
 
         // Build comparison data array (PBI #34)
         $comparison = $devices->map(function ($device) use ($rate) {
-            $monthly_kwh  = ($device->power_watt / 1000) * $device->usage_hours_per_day * $device->usage_days_per_month;
+            $monthly_kwh  = ($device->wattage / 1000) * $device->usage_hours_per_day * $device->usage_days_per_month;
             $monthly_cost = $monthly_kwh * $rate;
             $yearly_kwh   = $monthly_kwh * 12;
             $yearly_cost  = $monthly_cost * 12;
@@ -56,7 +56,7 @@ class CompareController extends Controller
                 'name'          => $device->name,
                 'brand'         => $device->brand,
                 'category'      => $device->category,
-                'power_watt'    => $device->power_watt,
+                'wattage'       => $device->wattage,
                 'usage_hours'   => $device->usage_hours_per_day,
                 'usage_days'    => $device->usage_days_per_month,
                 'energy_label'  => strtoupper($device->energy_label ?? '?'),

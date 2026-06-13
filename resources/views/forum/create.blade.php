@@ -16,6 +16,23 @@
 <div class="card">
     <div class="card-body">
 
+        @if ($errors->any())
+            <div style="
+                background:#fee2e2;
+                color:#b91c1c;
+                padding:12px;
+                border-radius:8px;
+                margin-bottom:16px;
+                font-size:14px;
+            ">
+                <ul style="margin:0; padding-left:20px;">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <div style="
             background:#fef3c7;
             color:#92400e;
@@ -27,7 +44,9 @@
             ⚠️ Posts can only be edited within 1 hour after creation.
         </div>
 
-        <form method="POST" action="{{ route('forum.store') }}">
+        <form method="POST"
+              action="{{ route('forum.store') }}"
+              novalidate>
 
             @csrf
 
