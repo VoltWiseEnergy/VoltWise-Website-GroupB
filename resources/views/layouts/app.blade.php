@@ -476,6 +476,14 @@
                     </svg>
                     Forum Moderation
                 </a>
+                
+                <a href="{{ route('admin.tariff.index') }}"
+                   class="nav-item {{ request()->routeIs('admin.tariff.*') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
+                    Tariff Rates
+                </a>
             @else
                 <a href="{{ url('/dashboard') }}"
                    class="nav-item {{ request()->is('dashboard') ? 'active' : '' }}">
@@ -540,6 +548,13 @@
                     </svg>
                     Forum
                     </a>
+                <a href="{{ route('compare.index') }}"
+                   class="nav-item {{ request()->routeIs('compare.*') ? 'active' : '' }}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+                    </svg>
+                    Compare
+                </a>
                 <a href="{{ route('simulator.index') }}"
                    class="nav-item {{ request()->routeIs('simulator.*') ? 'active' : '' }}">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none"
@@ -614,7 +629,7 @@
             </div>
         </header>
 
-        <header class="topbar" style="display: none;"></header> <main class="page-content">
+        <main class="page-content">
             @if (session('success'))
                 <div class="flash" role="status">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
