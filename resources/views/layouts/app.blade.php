@@ -603,7 +603,11 @@
             <div class="topbar-divider"></div>
             <div style="position:relative;">
                 <div class="topbar-avatar" id="avatar-btn" title="{{ auth()->user()->name ?? 'User' }}">
-                    {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
+                    @if(auth()->check() && auth()->user()->avatar)
+                        <img src="{{ asset('storage/' . auth()->user()->avatar) }}" alt="Avatar" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                    @else
+                        {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
+                    @endif
                 </div>
                 <div id="avatar-menu" class="avatar-menu">
                     <a href="{{ route('profile') }}">
