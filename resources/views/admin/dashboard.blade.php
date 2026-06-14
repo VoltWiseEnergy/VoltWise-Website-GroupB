@@ -91,6 +91,7 @@
             <div style="display:flex; gap:0.75rem;">
                 <a href="{{ route('admin.master-devices.create') }}" class="btn-primary">Add Master Device</a>
                 <a href="{{ route('admin.master-devices.index') }}" class="btn-secondary">View All Devices</a>
+                <a href="{{ route('admin.tariff.index') }}" class="btn-secondary">Manage Tariff Rates</a>
             </div>
         </div>
     </div>
