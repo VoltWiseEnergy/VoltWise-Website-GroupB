@@ -35,7 +35,7 @@
 
 <div class="page-tabs">
     <button type="button" class="tab-button active" data-tab="device-list">Device List</button>
-    <button type="button" class="tab-button" data-tab="device-reminder">Manage Reminders</button>
+    <button name="manage-reminder-btn" type="button" class="tab-button" data-tab="device-reminder">Manage Reminders</button>
 </div>
 
 <div class="tab-panel active" id="device-list">
@@ -100,7 +100,7 @@
                                     @endif
                                 </td>
                                 <td class="action-buttons">
-                                    <a href="{{ route('devices.edit', $device->id) }}" class="btn-edit">
+                                    <a href="{{ route('devices.edit', $device->id) }}" class="btn-edit" name="edit-reminder-btn">
                                         Edit
                                     </a>
 
@@ -169,7 +169,7 @@
                                     <option value="">Choose device</option>
                                     @foreach($devices as $device)
                                         <option value="{{ $device->id }}" {{ old('device_id') == $device->id ? 'selected' : '' }}>
-                                            {{ $device->name }} ({{ $device->wattage }}W)
+                                            {{ $device->name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -186,7 +186,7 @@
                             </div>
 
                             <div class="form-actions">
-                                <button type="submit" class="btn-primary">Save Reminder</button>
+                                <button name="save-reminder-btn" type="submit" class="btn-primary">Save Reminder</button>
                             </div>
                         </form>
                     @else

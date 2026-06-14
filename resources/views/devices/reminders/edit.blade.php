@@ -43,7 +43,7 @@
 
             <div class="form-actions">
                 <a href="{{ route('devices.index') }}" class="btn-cancel">Back</a>
-                <button type="submit" class="btn-primary">Save Changes</button>
+                <button name="save-reminder-edit" type="submit" class="btn-primary">Save Changes</button>
             </div>
         </form>
 
