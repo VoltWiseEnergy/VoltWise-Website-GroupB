@@ -17,7 +17,7 @@ use App\Http\Controllers\SimulatorController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\Admin\ForumModerationController;
 use App\Http\Controllers\CompareController; 
-use App\Http\Controllers\TariffController;
+use App\Http\Controllers\Admin\TariffController;
 
 // Main Page
 Route::get('/', function () {
@@ -112,13 +112,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/compare', [CompareController::class, 'index'])->name('compare.index');
     Route::post('/compare/results', [CompareController::class, 'compare'])->name('compare.results');
 
-    // Admin Tariff Management
-    Route::prefix('admin/tariff')->group(function () {
-        Route::get('/', [TariffController::class, 'index']);
-        Route::post('/set', [TariffController::class, 'store']);
-        Route::put('/update/{id}', [TariffController::class, 'update']);
-        Route::get('/history', [TariffController::class, 'history']);
-    });
+
 
     /*
     |--------------------------------------------------------------------------
@@ -135,5 +129,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/forum/reports/{report}/review', [ForumModerationController::class, 'reviewReport'])->name('forum.reports.review');
         Route::delete('/forum/{post}', [ForumModerationController::class, 'destroy'])->name('forum.destroy');
         Route::post('/forum/{post}/verify', [ForumModerationController::class, 'toggleVerified'])->name('forum.verify');
+
+        // Tariff Management (PBI #25-27)
+        Route::get('/tariff', [TariffController::class, 'index'])->name('tariff.index');
+        Route::post('/tariff', [TariffController::class, 'store'])->name('tariff.store');
     });
 });
