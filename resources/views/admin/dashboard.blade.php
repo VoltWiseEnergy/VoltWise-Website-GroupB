@@ -1,5 +1,17 @@
 @extends('layouts.app')
 @section('title', 'Admin Dashboard')
+@section('styles')
+<style>
+.btn-secondary {
+    display:inline-flex; align-items:center; gap:0.375rem;
+    padding:0.5rem 1rem; background:var(--bg-tip); color:var(--text-secondary);
+    border:1px solid var(--border); border-radius:8px; font-size:0.875rem; font-weight:600;
+    font-family:'Inter',sans-serif; text-decoration:none; cursor:pointer;
+    transition:background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s;
+}
+.btn-secondary:hover { background:var(--nav-hover-bg); color:var(--text-primary); border-color:var(--blue-600); transform:translateY(-1px); }
+</style>
+@endsection
 
 @section('content')
 
@@ -88,10 +100,19 @@
         <div class="card-body">
             <div class="card-title">Quick Actions</div>
             <div class="card-subtitle" style="margin-bottom:1rem;">Common tasks</div>
-            <div style="display:flex; gap:0.75rem;">
-                <a href="{{ route('admin.master-devices.create') }}" class="btn-primary">Add Master Device</a>
-                <a href="{{ route('admin.master-devices.index') }}" class="btn-secondary">View All Devices</a>
-                <a href="{{ route('admin.tariff.index') }}" class="btn-secondary">Manage Tariff Rates</a>
+            <div style="display:flex; flex-wrap:wrap; gap:0.75rem;">
+                <a href="{{ route('admin.master-devices.create') }}" class="btn-primary">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Add Master Device
+                </a>
+                <a href="{{ route('admin.master-devices.index') }}" class="btn-secondary">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3"/></svg>
+                    View All Devices
+                </a>
+                <a href="{{ route('admin.tariff.index') }}" class="btn-secondary">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    Manage Tariff Rates
+                </a>
             </div>
         </div>
     </div>
