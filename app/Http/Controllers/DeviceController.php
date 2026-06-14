@@ -40,7 +40,11 @@ class DeviceController extends Controller
         }
 
         $request->validate([
-            'name'     => 'required|max:255|unique:devices,name',
+            'name'     => [
+                'required', 
+                'max:255', 
+                \Illuminate\Validation\Rule::unique('devices')->where('user_id', auth()->id())
+            ],
             'wattage'  => 'required|numeric|min:1',
             'category' => 'required|max:255'
         ], [
@@ -157,7 +161,11 @@ class DeviceController extends Controller
         }
 
         $request->validate([
-            'name'     => 'required|max:255|unique:devices,name,' . $device->id,
+            'name'     => [
+                'required', 
+                'max:255', 
+                \Illuminate\Validation\Rule::unique('devices')->ignore($device->id)->where('user_id', auth()->id())
+            ],
             'wattage'  => 'required|integer|min:1',
             'category' => 'required|max:255'
         ], [
