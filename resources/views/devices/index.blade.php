@@ -226,7 +226,7 @@
                                                 <form action="{{ route('devices.reminders.destroy', $reminderDevice->id) }}" method="POST" class="inline-form">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn-delete small" onclick="return confirm('Delete this reminder?')">Delete</button>
+                                                    <button name="delete-reminder" type="submit" class="btn-delete small" onclick="return confirm('Delete this reminder?')">Delete</button>
                                                 </form>
                                             </td>
                                         </tr>
